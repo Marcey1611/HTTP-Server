@@ -92,7 +92,7 @@ def main():
 
         # Stop-Ereignis für den Benutzereingabe-Thread
         stop_event = threading.Event()
-
+        goon = False
         # Benutzereingabe-Thread starten
         input_thread = threading.Thread(target=input_thread_function, args=(stop_event, client_socket, args, headers))
         input_thread.daemon = True
@@ -106,10 +106,11 @@ def main():
                 if response:
                     logging.info(f"Antwort:\n{response}")
 
-                goon = True
+                
                 if not response:  # Wenn keine Antwort mehr kommt, wurde die Verbindung vom Server geschlossen
                     logging.info("Verbindung zum Server wurde geschlossen.")
                     stop_event.set()
+                goon = True
             except socket.error as e:
                 logging.error(f"Fehler beim Warten auf Serverantwort: {e}")
                 stop_event.set()
