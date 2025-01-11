@@ -9,6 +9,9 @@ def send_request(method, path, host, port, headers):
     # Verbindung aufbauen
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        
+        #client_socket.bind(("localhost", 55555))
         client_socket.connect((host, port))
         logging.info("Verbindung hergestellt.")
 
@@ -58,8 +61,8 @@ def main():
                 headers[key.strip()] = value.strip()
 
     # Default-Header hinzufügen, falls nicht angegeben
-    if "Connection" not in headers:
-        headers["Connection"] = "keep-alive"
+    #if "Connection" not in headers:
+    #    headers["Connection"] = "keep-alive"
 
     # Anfrage senden
     send_request(args.method, args.path, args.host, args.port, headers)

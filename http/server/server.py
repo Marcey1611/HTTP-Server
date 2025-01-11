@@ -1,6 +1,7 @@
 import socket
 import logging
 from threading import Thread
+import time
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -18,11 +19,20 @@ def handle_client(client_socket, client_address):
             try:
                 # Empfange Anfrage vom Client
                 request = client_socket.recv(4096).decode()
+                current_time = time.time()
+
+                # Wenn keine Anfrage empfangen wurde, Timeout überprüfen
                 if not request:
-                    logging.info(f"Verbindung von {client_address} geschlossen.")
-                    break
+                    if current_time - last_request_time > TIMEOUT:
+                        logging.info(f"Timeout erreicht, keine Daten empfangen seit {TIMEOUT} Sekunden.")
+                        break
+                    else:
+                        continue
 
                 logging.info(f"Anfrage von {client_address}:\n{request.strip()}")
+
+                # Zeitpunkt der letzten Anfrage speichern
+                last_request_time = current_time
 
                 # Prüfen, ob Connection: keep-alive gesetzt ist
                 keep_alive = "keep-alive" in request.lower()
