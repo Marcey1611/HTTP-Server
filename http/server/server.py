@@ -1,7 +1,9 @@
 import socket
 import logging
 from threading import Thread
-import time
+import json
+
+import http.server.methods.post.json_handler as json_handler
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -35,12 +37,24 @@ def handle_get(path):
     else:
         return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")
 
-'''def handle_post(path, body):
-    if path == "/submit":
-        # Angenommen, die POST-Daten wurden erfolgreich verarbeitet.
-        return "HTTP/1.1 201 Created", "text/plain", "Data submitted", len("Data submitted")
+def handle_post(path, body):
+    if path == "/submitJSON":
+        try:
+            # Body als JSON-Daten parsen
+            parsed_body = json.loads(body)
+            
+            # Übergib die JSON-Daten an die Methode
+            json_handler.add_new_user(parsed_body)
+            
+            # Erfolgsantwort zurückgeben
+            return "HTTP/1.1 201 Created", "text/plain", "Data submitted", len("Data submitted")
+        except json.JSONDecodeError:
+            # Fehler bei der JSON-Verarbeitung
+            error_message = "Invalid JSON format"
+            return "HTTP/1.1 400 Bad Request", "text/plain", error_message, len(error_message)
     else:
-        return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")'''
+        # Pfad nicht gefunden
+        return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")
 
 
 def parse_headers(request):
@@ -86,11 +100,12 @@ def handle_client(client_socket, client_address):
                 # Methode und Pfad verarbeiten
                 if method == "GET":
                     status, content_type, body, content_length = handle_get(path)
-                    '''elif method == "POST":
-                    # Beispiel für POST-Datenverarbeitung (Body müsste hier extrahiert werden)
-                    body = request.split("\r\n\r\n")[1]  # Extrahiere den Body
+                elif method == "POST":
+                    # Extrahiere den Body (alles nach dem Header)
+                    body = request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in request else ""
+
+                    # Verarbeite den POST-Request
                     status, content_type, body, content_length = handle_post(path, body)
-                    '''
                 else:
                     status = "HTTP/1.1 405 Method Not Allowed"
                     content_type = "text/plain"
