@@ -3,59 +3,16 @@ import logging
 from threading import Thread
 import json
 
-import http.server.methods.post.json_handler as json_handler
+from methods.get import get_handler
+from methods.post import post_handler
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 HOST = "127.0.0.1"
 PORT = 8080
-DEFAULT_TIMEOUT = 10  # Standard-Timeout für Keep-Alive in Sekunden
+DEFAULT_TIMEOUT = 100  # Standard-Timeout für Keep-Alive in Sekunden
 DEFAULT_MAX_REQUESTS = 5  # Standardanzahl maximaler Anfragen pro Verbindung
-
-# Dummy-Daten für den Content
-data = {
-    "/": "Hello, World!",
-    "/about": "About this server",
-    "/json": '{"message": "This is JSON"}',
-    "/html": '<!DOCTYPE html><html><body><h1>Hallo Welt</h1></body></html>',
-    "/xml": '<person><name>Max</name><alter>30</alter></person>'
-}
-
-# Dynamische Antwortgenerierung
-def handle_get(path):
-    if path == "/":
-        return "HTTP/1.1 200 OK", "text/plain", data["/"], len(data["/"])
-    elif path == "/about":
-        return "HTTP/1.1 200 OK", "text/plain", data["/about"], len(data["/about"])
-    elif path == "/json":
-        return "HTTP/1.1 200 OK", "application/json", data["/json"], len(data["/json"])
-    elif path == "/html":
-        return "HTTP/1.1 200 OK", "text/html", data["/html"], len(data["/html"])
-    elif path == "/xml":
-        return "HTTP/1.1 200 OK", "application/xml", data["/xml"], len(data["/xml"])
-    else:
-        return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")
-
-def handle_post(path, body):
-    if path == "/submitJSON":
-        try:
-            # Body als JSON-Daten parsen
-            parsed_body = json.loads(body)
-            
-            # Übergib die JSON-Daten an die Methode
-            json_handler.add_new_user(parsed_body)
-            
-            # Erfolgsantwort zurückgeben
-            return "HTTP/1.1 201 Created", "text/plain", "Data submitted", len("Data submitted")
-        except json.JSONDecodeError:
-            # Fehler bei der JSON-Verarbeitung
-            error_message = "Invalid JSON format"
-            return "HTTP/1.1 400 Bad Request", "text/plain", error_message, len(error_message)
-    else:
-        # Pfad nicht gefunden
-        return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")
-
 
 def parse_headers(request):
     """Extrahiert die Header aus der Anfrage und gibt sie als Dictionary zurück."""
@@ -97,19 +54,33 @@ def handle_client(client_socket, client_address):
                     connection = "Keep-Alive\r\n"
                     connection += f"Keep-Alive: timeout={keep_alive_timeout}, max={max_requests}"
 
-                # Methode und Pfad verarbeiten
-                if method == "GET":
-                    status, content_type, body, content_length = handle_get(path)
-                elif method == "POST":
-                    # Extrahiere den Body (alles nach dem Header)
-                    body = request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in request else ""
+                try:
+                    # Methode und Pfad verarbeiten
+                    if method == "GET":
+                        status, content_type, body, content_length = get_handler.handle_get(path)
+                    elif method == "POST":
+                        if "content-type" not in headers:
+                            status = "HTTP/1.1 400 Bad Request"
+                            content_type = "text/plain"
+                            body = "400 Bad Request"
+                            content_length = len(body)
+                        else:
+                            # Extrahiere den Body (alles nach dem Header)
+                            body = request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in request else ""
+                            logging.info(f"Body: {body}")
 
-                    # Verarbeite den POST-Request
-                    status, content_type, body, content_length = handle_post(path, body)
-                else:
-                    status = "HTTP/1.1 405 Method Not Allowed"
+                            # Verarbeite den POST-Request
+                            status, content_type, body, content_length = post_handler.handle_post(path, body, headers["content-type"])
+                    else:
+                        status = "HTTP/1.1 405 Method Not Allowed"
+                        content_type = "text/plain"
+                        body = "405 Method Not Allowed"
+                        content_length = len(body)
+                except Exception as e:
+                    logging.error(e)
+                    status = "HTTP/1.1 500 Internal Server Error"
                     content_type = "text/plain"
-                    body = "405 Method Not Allowed"
+                    body = "500 Internal Server Error"
                     content_length = len(body)
 
                 # Antwort erstellen

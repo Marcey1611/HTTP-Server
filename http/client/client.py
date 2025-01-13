@@ -9,16 +9,23 @@ import time
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 
-def send_request(client_socket, method, path, host, headers):
+def send_request(client_socket, method, path, host, port, headers, body):
     """
     Sendet eine HTTP-Anfrage und gibt die Antwort zurück.
     """
     try:
         # Anfrage zusammenstellen
-        request = f"{method} {path} HTTP/1.1\r\nHost: {host}\r\n"
+        request = f"{method} {path} HTTP/1.1\r\nHost: {host}:{port}\r\n"
         for key, value in headers.items():
             request += f"{key}: {value}\r\n"
+        if body:
+            request += f"Content-Length: {len(body)}\r\n"
         request += "\r\n"
+
+        # Body hinzufügen (falls vorhanden)
+        if body:
+            request += body
+
 
         # Anfrage senden
         logging.info(f"Anfrage:\n{request}")
@@ -36,6 +43,7 @@ def parse_args():
     parser.add_argument("--host", type=str, required=True, help="Hostname oder IP-Adresse des Servers")
     parser.add_argument("--port", type=int, required=True, help="Port des Servers")
     parser.add_argument("--headers", nargs="+", help="Zusätzliche HTTP-Header im Format Key:Value")
+    parser.add_argument("--body", type=str, help="Body der Anfrage als String")
     return parser.parse_args()
 
 
@@ -78,7 +86,7 @@ def input_thread_function(stop_event, client_socket, args, headers):
                         break
                     try:
                         method, path = user_input.split()
-                        send_request(client_socket, method, path, args.host, headers)
+                        send_request(client_socket, method, path, args.host, args.port, headers, "not supported yet")
                     except ValueError:
                         logging.error("Ungültige Eingabe! Beispiel: GET /")
                     user_input = ""  # Eingabe zurücksetzen
@@ -98,11 +106,13 @@ def input_thread_function(stop_event, client_socket, args, headers):
 def main():
     args = parse_args()
     headers = convert_headers_to_dict(args)
+    body = args.body
+    logging.info(f"Body: {body}")
 
     client_socket = None  # Vorinitialisierung, um Fehler im finally-Block zu vermeiden
     try:
         client_socket = create_connection(args)
-        send_request(client_socket, args.method, args.path, args.host, headers)
+        send_request(client_socket, args.method, args.path, args.host, args.port, headers, body)
 
         # Stop-Ereignis für den Benutzereingabe-Thread
         stop_event = threading.Event()
