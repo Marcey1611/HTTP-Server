@@ -1,13 +1,13 @@
 import socket
 import logging
 from threading import Thread
-import json
 
 from methods.get import get_handler
 from methods.post import post_handler
+from entity.models import Request, KeepAliveData, Response
 
 # Logging einrichten
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -25,85 +25,113 @@ def parse_headers(request):
         headers[key.strip().lower()] = value.strip()
     return headers
 
+def handle_methods(raw_request, request) -> Response:
+    # Methode und Pfad verarbeiten
+    if request.method == "GET":
+        if "accept" in request.headers:
+            accept = request.headers["accept"]
+        else:
+            accept = None
+        status, content_type, body, content_length = get_handler.handle_get(request.path, accept)
+
+    elif request.method == "POST":
+        if "content-type" not in request.headers:
+            body = "400 Bad Request"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+
+        else:
+            # Extrahiere den Body (alles nach dem Header)
+            body = raw_request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in raw_request else ""
+            logging.info(f"Body: {body}")
+
+            # Verarbeite den POST-Request
+            status, content_type, body, content_length = post_handler.handle_post(request.path, body, request.headers["content-type"])
+    else:
+        status = "HTTP/1.1 405 Method Not Allowed"
+        content_type = "text/plain"
+        body = "405 Method Not Allowed"
+        content_length = len(body)
+    return Response(status, content_type, body, content_length)
+
+def handle_client_request(raw_request, request, keep_alive_data):
+    if "host" not in request.headers:
+        body = "HTTP/1.1 400 Bad Request"
+        return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+    
+    if "host" in request.headers and request.headers["host"] != f"{HOST}:{PORT}":
+        body = "404 Not Found"
+        return Response("HTTP/1.1 "+body, "text/plain", body, len(body)) 
+    
+    response = handle_methods(raw_request, request)
+    
+    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
+        connection = "Keep-Alive\r\n"
+        connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+        response.connection = connection
+
+    '''accept = None
+    if "accept" in request.headers:
+        logging.info(request.headers["accept"])
+        accept = request.headers["accept"]'''
+
+    
+    '''except Exception as e:
+        logging.error(e)
+        status = "HTTP/1.1 500 Internal Server Error"
+        content_type = "text/plain"
+        body = "500 Internal Server Error"
+        content_length = len(body)'''
+    
+    return response
+
 def handle_client(client_socket, client_address):
     logging.info(f"Neue Verbindung von {client_address}\n")
     client_socket.settimeout(DEFAULT_TIMEOUT)  # Setzt Standard-Timeout
 
     # Initiale Werte für Keep-Alive-Parameter
-    keep_alive_timeout = DEFAULT_TIMEOUT
-    max_requests = DEFAULT_MAX_REQUESTS
-    request_count = 0
+    keep_alive_data = KeepAliveData(DEFAULT_TIMEOUT, DEFAULT_MAX_REQUESTS, 0)
 
     try:
-        while request_count < max_requests:
+        while keep_alive_data.request_count < keep_alive_data.max_requests:
             try:
                 # Empfang der Anfrage
-                request = client_socket.recv(4096).decode()
-                if not request:  # Wenn keine Anfrage empfangen wurde
+                raw_request = client_socket.recv(4096).decode()
+                if not raw_request:  # Wenn keine Anfrage empfangen wurde
                     logging.info(f"Keine Daten von {client_address}. Verbindung wird geschlossen.")
                     break
 
-                logging.info(f"Anfrage von {client_address}:\n{request.strip()}\n")
+                logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
 
-                method, path, _ = request.split(" ")[0], request.split(" ")[1], request.split(" ")[2]
+                method, path, _ = raw_request.split(" ")[0], raw_request.split(" ")[1], raw_request.split(" ")[2]
 
                 # Header als Dictionary extrahieren
-                headers = parse_headers(request)
+                headers = parse_headers(raw_request)
 
-                if "connection" in headers and "keep-alive" in headers["connection"]:
-                    connection = "Keep-Alive\r\n"
-                    connection += f"Keep-Alive: timeout={keep_alive_timeout}, max={max_requests}"
+                request = Request(method, path, headers, body=None)
 
-                try:
-                    # Methode und Pfad verarbeiten
-                    if method == "GET":
-                        status, content_type, body, content_length = get_handler.handle_get(path)
-                    elif method == "POST":
-                        if "content-type" not in headers:
-                            status = "HTTP/1.1 400 Bad Request"
-                            content_type = "text/plain"
-                            body = "400 Bad Request"
-                            content_length = len(body)
-                        else:
-                            # Extrahiere den Body (alles nach dem Header)
-                            body = request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in request else ""
-                            logging.info(f"Body: {body}")
-
-                            # Verarbeite den POST-Request
-                            status, content_type, body, content_length = post_handler.handle_post(path, body, headers["content-type"])
-                    else:
-                        status = "HTTP/1.1 405 Method Not Allowed"
-                        content_type = "text/plain"
-                        body = "405 Method Not Allowed"
-                        content_length = len(body)
-                except Exception as e:
-                    logging.error(e)
-                    status = "HTTP/1.1 500 Internal Server Error"
-                    content_type = "text/plain"
-                    body = "500 Internal Server Error"
-                    content_length = len(body)
+                response = handle_client_request(raw_request, request, keep_alive_data)
 
                 # Antwort erstellen
-                response = (
-                    f"{status}\r\n"
-                    f"Content-Type: {content_type}\r\n"
-                    f"Content-Length: {content_length}\r\n"
-                    f"Connection: {connection}\r\n"
+                final_response = (
+                    f"{response.status}\r\n"
+                    f"Content-Type: {response.content_type}\r\n"
+                    f"Content-Length: {response.content_length}\r\n"
+                    f"Connection: {response.connection}\r\n"
                     "\r\n"
-                    f"{body}"
+                    f"{response.body}"
                 )
-                client_socket.sendall(response.encode())
-                logging.info(f"Antwort gesendet:\n{response.strip()}\n")
+                client_socket.sendall(final_response.encode())
+                logging.info(f"Antwort gesendet:\n{final_response.strip()}\n")
 
                 # Anzahl der Anfragen erhöhen
-                request_count += 1
-                logging.info(f"Anfrage {request_count}/{max_requests} verarbeitet.")
+                keep_alive_data.request_count += 1
+                logging.info(f"Anfrage {keep_alive_data.request_count}/{keep_alive_data.max_requests} verarbeitet.")
 
                 # Timeout verlängern
-                client_socket.settimeout(keep_alive_timeout)
+                client_socket.settimeout(keep_alive_data.keep_alive_timeout)
 
             except socket.timeout:
-                logging.info(f"Timeout von {keep_alive_timeout} Sekunden erreicht. Verbindung wird geschlossen.")
+                logging.info(f"Timeout von {keep_alive_data.keep_alive_timeout} Sekunden erreicht. Verbindung wird geschlossen.")
                 break
 
     except Exception as e:

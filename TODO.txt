@@ -1,8 +1,10 @@
 - POST mit den verschiedene Datenformate
 - PUT mit den verschiedene Datenformate
 - DELETE mit den verschiedene Datenformate
-- GET mit den verschiedenen Datenformate vervollständigen 
++ GET mit den verschiedenen Datenformate vervollständigen 
+
 - Header: Accept + 406 Not acceptable: passt der Accept HEdaer des Clients zu dem Rückgabe wert der Schnittstelle die er aufruft?
 - Header: Host -> überprüfen steht da server IP drin?
+
 - Basic Auth Implementieren
 - Query Strings: Bsp Liste von Nutzer sortiert ausgeben oder so...
