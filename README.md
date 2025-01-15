@@ -18,3 +18,5 @@ Client:
 - GET /json
 - GET /xml
 - POST /json/add_user
+
+python client.py POST /json/add_user --host 127.0.0.1 --port 8080 --headers "Connection:keep-alive" "Content-Type:test/plain" "Host:123.45.6.7:890" --body '{\"name\":\"Test\",\"age\":20}'

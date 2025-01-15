@@ -41,11 +41,12 @@ def handle_methods(raw_request, request) -> Response:
 
         else:
             # Extrahiere den Body (alles nach dem Header)
-            body = raw_request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in raw_request else ""
-            logging.info(f"Body: {body}")
+            request.body = raw_request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in raw_request else ""
+            logging.info(f"Body: {request.body}")
+            
 
             # Verarbeite den POST-Request
-            status, content_type, body, content_length = post_handler.handle_post(request.path, body, request.headers["content-type"])
+            status, content_type, body, content_length = post_handler.handle_post(request)
     else:
         status = "HTTP/1.1 405 Method Not Allowed"
         content_type = "text/plain"
@@ -73,14 +74,6 @@ def handle_client_request(raw_request, request, keep_alive_data):
     if "accept" in request.headers:
         logging.info(request.headers["accept"])
         accept = request.headers["accept"]'''
-
-    
-    '''except Exception as e:
-        logging.error(e)
-        status = "HTTP/1.1 500 Internal Server Error"
-        content_type = "text/plain"
-        body = "500 Internal Server Error"
-        content_length = len(body)'''
     
     return response
 

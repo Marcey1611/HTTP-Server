@@ -1,4 +1,4 @@
-<person>
-    <name>Max</name>
-    <alter>30</alter>
-</person>
+<products>
+    <product>Milk</product>
+    <price>30</price>
+</products>

@@ -1,26 +1,59 @@
 import json
-import logging
+import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 
 from data.json import json_handler
+from data.xml import xml_handler
+from entity.models import Request, Response
 
-def handle_post(path, body, content_type):
-    try:
-        if path == "/json/add_user":
-            if content_type != "application/json":
-                return "HTTP/1.1 415 Unsupported Content-Type", "text/plain", "415 Unsupported Content-Type", len("415 Unsupported Content-Type")
-            try:
-                # Übergib die JSON-Daten an die Methode
-                json_handler.add_new_user(body)
-                
-                # Erfolgsantwort zurückgeben
-                return "HTTP/1.1 201 Created", "text/plain", "Data submitted", len("Data submitted")
-            except json.JSONDecodeError as e:
-                logging.error(e)
-                # Fehler bei der JSON-Verarbeitung
-                error_message = "Invalid JSON format"
-                return "HTTP/1.1 422 Unprocessable Entity", "text/plain", error_message, len(error_message)
-        else:
-            # Pfad nicht gefunden
-            return "HTTP/1.1 404 Not Found", "text/plain", "404 Not Found", len("404 Not Found")
-    except Exception as e:
-        raise e
+def handle_post(request: Request) -> Response:
+    if request.path == "/json/add_user":
+        if request.headers["content-type"] != "application/json":
+            body = "415 Unsupported Content-Type"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+        try:
+            # Übergib die JSON-Daten an die Methode
+            json_handler.add_new_user(request.body)
+            
+            # Erfolgsantwort zurückgeben
+            body = "Data submitted"
+            return Response("HTTP/1.1 201 Created", "text/plain", body, len(body))
+        except json.JSONDecodeError as e:
+            # Fehler bei der JSON-Verarbeitung
+            body = "422 Unprocessable Entity"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+        
+    if request.path == "/xml/add_product":
+        if request.headers["content-type"] != "application/xml":
+            body = "415 Unsupported Content-Type"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+        try:
+            xml_handler.add_new_product(request.body)
+
+            # Erfolgsantwort zurückgeben
+            body = "Data submitted"
+            return Response("HTTP/1.1 201 Created", "text/plain", body, len(body))
+        except ET.ParseError:
+            # Fehler bei der XML-Verarbeitung
+            body = "422 Unprocessable Entity"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+            
+    if request.path == "/html/add_data":
+        if request.headers["content-type"] != "text/html":
+            body = "415 Unsupported Content-Type"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+        try:
+            xml_handler.add_new_product(request.body)
+
+            # Erfolgsantwort zurückgeben
+            body = "Data submitted"
+            return Response("HTTP/1.1 201 Created", "text/plain", body, len(body))
+        except ET.ParseError:
+            # Fehler bei der XML-Verarbeitung
+            body = "422 Unprocessable Entity"
+            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
+        
+    else:
+        # Pfad nicht gefunden
+        body = "404 Not Found"
+        return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
