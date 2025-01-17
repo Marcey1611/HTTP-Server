@@ -4,15 +4,12 @@ from entity.models import Response, Request
 from methods.get import get_handler
 from methods.post import post_handler
 from methods.delete import delete_handler
+from entity.enums import Method
 
 def handle_methods(raw_request, request: Request) -> Response:
     try:
-        if request.method == "GET":
-            if "accept" in request.headers:
-                accept = request.headers["accept"]
-            else:
-                accept = None
-            return get_handler.handle_get(request.path, accept)
+        if request.method in (m.value for m in Method) and request.path in get_handler.paths:
+            return get_handler.handle_get(request)
 
         elif request.method == "POST":
             if "content-type" not in request.headers:
@@ -20,7 +17,6 @@ def handle_methods(raw_request, request: Request) -> Response:
                 return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
             else:
                 request.body = raw_request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in raw_request else ""
-                logging.info(f"Body: {request.body}")
                 
                 return post_handler.handle_post(request)
         elif request.method == "DELETE":

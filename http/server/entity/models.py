@@ -1,11 +1,15 @@
 from dataclasses import dataclass
+from typing import Callable, Optional
 
 @dataclass
 class Request:
-    method: str
     path: str
+    method: str
     headers: dict
-    body: str = None
+    handler: Callable
+    body: Optional[str] = None
+    query: Optional[str] = None
+    
 
 @dataclass
 class Response:

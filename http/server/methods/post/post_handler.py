@@ -3,9 +3,9 @@ import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 import logging
 
-from data.json import json_handler
-from data.xml import xml_handler
-from data.html import html_handler
+#from data.json import json_handler
+#from data.xml import xml_handler
+#from data.html import html_handler
 from entity.models import Request, Response
 
 def handle_post(request: Request) -> Response:
@@ -16,7 +16,7 @@ def handle_post(request: Request) -> Response:
                 return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
             try:
                 # Übergib die JSON-Daten an die Methode
-                json_handler.add_new_user(request.body)
+                #json_handler.add_new_user(request.body)
                 
                 # Erfolgsantwort zurückgeben
                 body = "Data submitted"
@@ -31,7 +31,7 @@ def handle_post(request: Request) -> Response:
                 body = "415 Unsupported Content-Type"
                 return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
             try:
-                xml_handler.add_new_product(request.body)
+                #xml_handler.add_new_product(request.body)
 
                 # Erfolgsantwort zurückgeben
                 body = "Data submitted"
@@ -46,7 +46,7 @@ def handle_post(request: Request) -> Response:
                 body = "415 Unsupported Content-Type"
                 return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
             try:
-                html_handler.add_data(request.body)
+                #html_handler.add_data(request.body)
 
                 # Erfolgsantwort zurückgeben
                 body = "Data submitted"

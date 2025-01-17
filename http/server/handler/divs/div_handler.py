@@ -2,18 +2,20 @@ import os
 import xml.etree.ElementTree as ET
 import logging
 
-file_path = os.getcwd() + "/data/html/data.html"
+from entity.models import Response, Request
 
-def get_data() -> str:
+file_path = os.getcwd() + "/handler/divs/data.html"
+
+def get_divs(request: Request) -> str:
     try:
         # Datei öffnen und Inhalt lesen
         with open(file_path, "r", encoding="utf-8") as file:
             data = file.read()
-        return data
+        return Response("HTTP/1.1 200 OK", "text/html", data, len(data))
     except Exception as e:
         raise e
     
-def add_data(data):
+def post_divs(request: Request):
     try:
         # HTML-Datei laden
         tree = ET.parse(file_path)
@@ -25,7 +27,7 @@ def add_data(data):
             raise Exception # Ist ein 500er
 
         # Neues HTML-Element erstellen
-        new_data = ET.fromstring(data)
+        new_data = ET.fromstring(request.data)
 
         # Überprüfen, ob das Element ein <div>-Tag ist
         if new_data.tag.lower() != "div":

@@ -4,37 +4,16 @@ from threading import Thread
 
 from methods import method_handler
 from entity.models import Request, KeepAliveData, Response
+import validator
+from entity.exceptions import NotFoundException, MethodNotAllowedException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
-HOST = "127.0.0.1"
+HOST = "localhost"
+HOST_IP = "127.0.0.1"
 PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
-
-def parse_headers(request):
-    try:
-        # Header und Body trennen
-        if "\r\n\r\n" in request:
-            header_part = request.split("\r\n\r\n", 1)[0]
-        else:
-            header_part = request  # Falls kein Body vorhanden ist, ist alles der Header
-
-        # Zeilen des Headers extrahieren (ohne Startzeile)
-        lines = header_part.split("\r\n")[1:]  # Startzeile überspringen
-
-        headers = {}
-        for line in lines:
-            if ":" not in line:
-                logging.warning(f"Ungültiger Header: {line}")
-                continue
-            key, value = line.split(":", 1)
-            headers[key.strip().lower()] = value.strip()  # Header in Kleinbuchstaben normalisieren
-
-        return headers
-    except Exception as e:
-        logging.error(e)
-        raise e
 
 def handle_base_headers(raw_request, request, keep_alive_data) -> Response:
     try: 
@@ -42,7 +21,7 @@ def handle_base_headers(raw_request, request, keep_alive_data) -> Response:
             body = "HTTP/1.1 400 Bad Request"
             return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
         
-        if "host" in request.headers and request.headers["host"] != f"{HOST}:{PORT}":
+        if "host" in request.headers and request.headers["host"] != f"{HOST_IP}:{PORT}" and request.headers["host"] != f"{HOST}:{PORT}":
             body = "404 Not Found"
             return Response("HTTP/1.1 "+body, "text/plain", body, len(body)) 
         
@@ -75,10 +54,12 @@ def handle_client(client_socket, client_address):
                 logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
 
                 try:
-                    method, path, _ = raw_request.split(" ")[0], raw_request.split(" ")[1], raw_request.split(" ")[2]
-                    headers = parse_headers(raw_request)
-                    request = Request(method, path, headers, body=None)
-                    response = handle_base_headers(raw_request, request, keep_alive_data)
+                    request = validator.unpack_request(raw_request)
+                    response = request.handler(request)
+                except NotFoundException as exception:
+                    response = exception.response
+                except MethodNotAllowedException as exception:
+                    response = exception.response
                 except Exception as e:
                     logging.error(e)
                     status = "500 Internal Server Error"
@@ -113,11 +94,11 @@ def handle_client(client_socket, client_address):
 def run_server():
     global server_running
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((HOST, PORT))
+    server_socket.bind((HOST_IP, PORT))
     server_socket.listen(5)
     server_socket.settimeout(1.0)
 
-    logging.info(f"Server läuft auf {HOST}:{PORT}")
+    logging.info(f"Server läuft auf {HOST_IP}:{PORT}")
 
     try:
         while server_running:

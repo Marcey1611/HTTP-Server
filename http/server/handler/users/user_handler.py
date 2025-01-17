@@ -2,20 +2,23 @@ import json
 import os
 import logging
 
-# Datei-Pfad zur JSON-Datei
-file_path = os.getcwd() + '/data/json/data.json'
+from entity.models import Response, Request
+from entity.enums import HttpStatus, ContentType
 
-def get_data():
+# Datei-Pfad zur JSON-Datei
+file_path = os.getcwd() + '/handler/users/data.json'
+
+def get_users(request: Request) -> Response:
     try:
         # Datei öffnen und Inhalt lesen
         with open(file_path, "r", encoding="utf-8") as file:
             data = file.read()
-        return data
+        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.JSON.value, data, len(data))
     except Exception as e:
         raise e
 
 
-def add_new_user(new_user):
+def post_users(request: Request) -> Response:
     try:
         # JSON-File einlesen
         try:
@@ -26,7 +29,7 @@ def add_new_user(new_user):
             data = {"users": []}
 
         # JSON-String in ein Python-Objekt umwandeln
-        new_data = json.loads(new_user)
+        new_data = json.loads(request.body)
 
         # Neuen Benutzer hinzufügen
         data["users"].append(new_data)
@@ -38,8 +41,8 @@ def add_new_user(new_user):
         logging.error(e)
         raise e
 
-def delete_name(query):
-    name = query.split("=")[1]
+def delete_users(request: Request) -> Response:
+    name = request.query.split("=")[1]
     try:
         # JSON-Daten aus der Datei lesen
         with open(file_path, "r") as file:

@@ -1,15 +1,17 @@
 import re
 
 from entity.models import Response, Request
-from data.json import json_handler
+#from data.json import json_handler
+
+paths = ["/json/delete_user"]
 
 def handle_delete(request: Request) -> Response:
 
-    if "/json" in request.path:
+    if "/json/delete_user" in request.path:
         pattern = "^/json/delete_user\?name=[^&]+$"
         if re.match(pattern, request.path):
             query = request.path.split("?")[1]
-            json_handler.delete_name(query)
+            #json_handler.delete_name(query)
         body = "User sucessfully deleted."
         return Response("HTTP/1.1 200 OK", "text/plain", body, len(body))
     else:
