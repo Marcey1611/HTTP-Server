@@ -18,7 +18,6 @@ def handle_methods(raw_request, request: Request) -> Response:
             if "content-type" not in request.headers:
                 body = "400 Bad Request"
                 return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
-
             else:
                 request.body = raw_request.split("\r\n\r\n", 1)[1] if "\r\n\r\n" in raw_request else ""
                 logging.info(f"Body: {request.body}")

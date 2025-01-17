@@ -188,6 +188,5 @@ def main():
             client_socket.close()
         logging.info("Verbindung geschlossen.")
 
-
 if __name__ == "__main__":
     main()
