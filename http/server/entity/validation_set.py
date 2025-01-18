@@ -1,6 +1,6 @@
 from handler.divs.div_handler import get_divs, post_divs
 from handler.products.product_handler import get_products, post_products
-from handler.users.user_handler import get_users, post_users, delete_users
+from handler.users.user_handler import get_users, post_users, delete_users, put_users
 from handler.root_info.root_info_handler import get_root, get_info
 
 set = {
@@ -73,7 +73,8 @@ set = {
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "application/json"]
+            "accept": ["*/*", "application/json"],
+            "handler": put_users
         },
         "DELETE": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
@@ -81,7 +82,7 @@ set = {
             "query_required": True,
             "query_allowed": True,
             "accept": ["*/*", "application/json"],
-            #"handler": delete_users
+            "handler": delete_users
         }
     },
     "/products": {

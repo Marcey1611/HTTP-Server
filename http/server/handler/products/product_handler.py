@@ -20,15 +20,10 @@ def post_products(request: Request) -> Response:
     try:
         tree = ET.parse(file_path)
         root = tree.getroot()
-        new_product_fragment = ET.fromstring(f"<root>{request.body}</root>")
-
-        # Die Kinder des Fragments zum Haupt-XML hinzufügen
-        for child in new_product_fragment:
-            root.append(child)
-
-        # Änderungen zurück in die Datei schreiben
+        new_product = ET.fromstring(f"<product>{request.body}</product>")
+        root.append(new_product)
         tree.write(file_path, encoding="utf-8", xml_declaration=True)
-
+        
         body = "Product successfully created!"
         return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:

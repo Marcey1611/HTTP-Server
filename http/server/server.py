@@ -35,13 +35,6 @@ def handle_client(client_socket, client_address):
                         raise PayloadTooLargeException
                     request = validator.unpack_request(raw_request)
                     response = request.handler(request)
-                    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
-                        connection = "Keep-Alive\r\n"
-                        connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-                        response.connection = connection
-                    else: 
-                        response.connection = "close"
-                        keep_alive_data.max_requests = 1
                 except BadRequestException as exception:
                     response = exception.response
                 except UnsupportedMediaTypeException as exception:
@@ -60,6 +53,14 @@ def handle_client(client_socket, client_address):
                     logging.error(e)
                     status = "500 Internal Server Error"
                     response = Response("HTTP/1.1 "+status, "text/plain", status, len(status))
+
+                if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
+                    connection = "Keep-Alive\r\n"
+                    connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+                    response.connection = connection
+                else: 
+                    response.connection = "close"
+                    keep_alive_data.max_requests = 1
 
                 http_response = (
                     f"{response.status}\r\n"

@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <products>
-    <product>Milk</product>
-    <price>30</price>
-<product>Test</product><price>100</price><product>Test</product><price>100</price><product>Test</product><price>100</price><product>XYZ</product><price>100</price><product>XYZ</product><price>100</price></products>
+    <product>
+        <name>Milk</name>
+        <price>30</price>
+    </product>
+<product><name>XYZ</name><price>100</price></product><product><name>XYZ</name><price>100</price></product></products>
