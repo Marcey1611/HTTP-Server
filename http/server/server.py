@@ -5,7 +5,7 @@ from threading import Thread
 from methods import method_handler
 from entity.models import Request, KeepAliveData, Response
 import validator
-from entity.exceptions import NotFoundException, MethodNotAllowedException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
@@ -55,10 +55,19 @@ def handle_client(client_socket, client_address):
 
                 try:
                     request = validator.unpack_request(raw_request)
+                    logging.info("after validation")
                     response = request.handler(request)
+                except BadRequestException as exception:
+                    response = exception.response
+                except UnsupportedMediaTypeException as exception:
+                    response = exception.response
+                except NotAcceptableException as exception:
+                    response = exception.response
                 except NotFoundException as exception:
                     response = exception.response
                 except MethodNotAllowedException as exception:
+                    response = exception.response
+                except NotImplementedException as exception:
                     response = exception.response
                 except Exception as e:
                     logging.error(e)

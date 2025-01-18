@@ -31,18 +31,14 @@ def unpack_request(raw_request) -> Request:
 
 def parse_headers(header_part):
     try:
-        
-
-        # Zeilen des Headers extrahieren (ohne Startzeile)
-        lines = header_part.split("\r\n")[1:]  # Startzeile überspringen
-
+        lines = header_part.split("\r\n")[1:]
         headers = {}
+
         for line in lines:
             if ":" not in line:
-                logging.warning(f"Ungültiger Header: {line}")
-                continue
+                raise BadRequestException()
             key, value = line.split(":", 1)
-            headers[key.strip().lower()] = value.strip()  # Header in Kleinbuchstaben normalisieren
+            headers[key.strip().lower()] = value.strip()
 
         return headers
     except Exception as e:
@@ -50,34 +46,37 @@ def parse_headers(header_part):
         raise e
     
 def validate_request(path, method, headers, body, query):
-    if path not in validation_set.set:
-        raise NotFoundException()
-    route = validation_set.set.get(path)
-    if method not in route:
-        raise MethodNotAllowedException()
-    route_method = route[method]
+    try:
+        if path not in validation_set.set:
+            raise NotFoundException()
+        route = validation_set.set.get(path)
+        if method not in route:
+            raise MethodNotAllowedException()
+        route_method = route[method]
 
-    required_headers = route_method["required_headers"]
+        required_headers = route_method["required_headers"]
 
-    for header, values in required_headers.items():
-        if header not in headers:
+        for header, values in required_headers.items():
+            if header not in headers:
+                logging.info("header fehlt")
+                raise BadRequestException()
+            
+            if header == "host" and headers["host"] not in values:
+                raise NotFoundException()
+            
+            if header == "content-type" and headers["content-type"] not in values:
+                raise UnsupportedMediaTypeException()
+        
+            
+        if (route_method["body_required"] and not body) or (route_method["query_required"] and not query) or (not route_method["query_allowed"] and query):
             raise BadRequestException()
         
-        if header == "host" and headers["host"] not in values:
-            raise NotFoundException()
+        if "accept" in headers:
+            for accept in headers["accept"]:
+                if accept not in route_method["accept"]:
+                    raise NotAcceptableException()
+            
         
-        if header == "content-type" and headers["content-type"] not in values:
-            raise UnsupportedMediaTypeException()
-    
-        
-    if (route_method["body_required"] and not body) or (route_method["query_required"] and not query) or (route_method["query_allowed"] and query):
-        raise BadRequestException()
-    
-    if "accept" in headers:
-        for accept in headers["accept"]:
-            if accept not in route_method["accept"]:
-                raise NotAcceptableException()
-    try:        
         if "handler" not in route_method:
             raise NotImplementedException()
         else:

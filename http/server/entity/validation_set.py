@@ -6,7 +6,6 @@ set = {
     "/": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_home",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -16,7 +15,6 @@ set = {
     "/info": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_info",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -26,7 +24,6 @@ set = {
     "/info/routes": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_routes_info",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -36,7 +33,6 @@ set = {
     "/info/headers": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_headers_info",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -46,7 +42,6 @@ set = {
     "/info/general": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_general_info",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -56,7 +51,6 @@ set = {
     "/users": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_get_users",
             "body_required": False,
             "query_required": False,
             "query_allowed": True,
@@ -64,17 +58,15 @@ set = {
             "handler": get_users
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["application/json"]},
-            "handler": "handle_post_user",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/json"],
-            "handler": post_users
+            #"handler": post_users
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["application/json"]},
-            "handler": "handle_put_user",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -82,18 +74,16 @@ set = {
         },
         "DELETE": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_delete_user",
             "body_required": False,
             "query_required": True,
             "query_allowed": True,
             "accept": ["*/*", "application/json"],
-            "handler": delete_users
+            #"handler": delete_users
         }
     },
     "/products": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_get_products",
             "body_required": False,
             "query_required": False,
             "query_allowed": True,
@@ -101,17 +91,15 @@ set = {
             "handler": get_products
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["application/xml"]},
-            "handler": "handle_post_product",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/xml"],
-            "handler": post_products
+            #"handler": post_products
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["application/xml"]},
-            "handler": "handle_put_product",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -119,7 +107,6 @@ set = {
         },
         "DELETE": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_delete_product",
             "body_required": False,
             "query_required": True,
             "query_allowed": True,
@@ -129,7 +116,6 @@ set = {
     "/divs": {
         "GET": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_get_divs",
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
@@ -137,17 +123,15 @@ set = {
             "handler": get_divs
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["text/html"]},
-            "handler": "handle_post_div",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/html"],
-            "handler": post_divs
+            #"handler": post_divs
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content_type": ["text/html"]},
-            "handler": "handle_put_div",
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"]},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -155,7 +139,6 @@ set = {
         },
         "DELETE": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "handler": "handle_delete_div",
             "body_required": False,
             "query_required": True,
             "query_allowed": True,
