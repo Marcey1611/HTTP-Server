@@ -1,6 +1,7 @@
 from handler.divs.div_handler import get_divs, post_divs
 from handler.products.product_handler import get_products, post_products
 from handler.users.user_handler import get_users, post_users, delete_users
+from handler.root_info.root_info_handler import get_root, get_info
 
 set = {
     "/": {
@@ -9,7 +10,8 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"]
+            "accept": ["*/*", "text/plain"],
+            "handler": get_root
         }
     },
     "/info": {
@@ -18,7 +20,8 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"]
+            "accept": ["*/*", "text/plain"],
+            "handler": get_info
         }
     },
     "/info/routes": {
@@ -63,7 +66,7 @@ set = {
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/json"],
-            #"handler": post_users
+            "handler": post_users
         },
         "PUT": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"]},
@@ -96,7 +99,7 @@ set = {
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/xml"],
-            #"handler": post_products
+            "handler": post_products
         },
         "PUT": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"]},
@@ -128,7 +131,7 @@ set = {
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/html"],
-            #"handler": post_divs
+            "handler": post_divs
         },
         "PUT": {
             "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"]},

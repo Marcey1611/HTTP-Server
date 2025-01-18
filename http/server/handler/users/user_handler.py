@@ -20,23 +20,18 @@ def get_users(request: Request) -> Response:
 
 def post_users(request: Request) -> Response:
     try:
-        # JSON-File einlesen
-        try:
-            with open(file_path, 'r') as file:
-                data = json.load(file)  # Bestehendes JSON-Objekt laden
-        except FileNotFoundError:
-            # Falls Datei nicht existiert, neues JSON-Objekt erstellen
-            data = {"users": []}
+        with open(file_path, 'r') as file:
+            data = json.load(file)
 
-        # JSON-String in ein Python-Objekt umwandeln
         new_data = json.loads(request.body)
 
-        # Neuen Benutzer hinzufügen
         data["users"].append(new_data)
 
-        # Aktualisiertes JSON-Objekt zurück in die Datei schreiben
         with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)  # Schön formatieren mit Einrückung
+            json.dump(data, file, indent=4)
+
+        body = "User successfully created!"
+        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:
         logging.error(e)
         raise e
@@ -60,6 +55,8 @@ def delete_users(request: Request) -> Response:
         with open(file_path, "w") as file:
             json.dump(json_data, file, indent=4)
 
+        body = "User successfully deleted!"
+        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:
         logging.error(e)
         raise e

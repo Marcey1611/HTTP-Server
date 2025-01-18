@@ -38,12 +38,15 @@ def parse_headers(header_part):
             if ":" not in line:
                 raise BadRequestException()
             key, value = line.split(":", 1)
-            headers[key.strip().lower()] = value.strip()
+            key = key.strip().lower()
+            values = [v.strip() for v in value.split(",")]
+            headers[key] = values
 
         return headers
     except Exception as e:
         logging.error(e)
         raise e
+
     
 def validate_request(path, method, headers, body, query):
     try:
@@ -61,27 +64,30 @@ def validate_request(path, method, headers, body, query):
                 logging.info("header fehlt")
                 raise BadRequestException()
             
-            if header == "host" and headers["host"] not in values:
-                raise NotFoundException()
+            if header == "host":
+                if headers["host"][0] not in values:
+                    raise NotFoundException()
             
-            if header == "content-type" and headers["content-type"] not in values:
+            if header == "content-type" and headers["content-type"][0] not in values:
                 raise UnsupportedMediaTypeException()
-        
             
         if (route_method["body_required"] and not body) or (route_method["query_required"] and not query) or (not route_method["query_allowed"] and query):
             raise BadRequestException()
         
         if "accept" in headers:
-            for accept in headers["accept"]:
-                if accept not in route_method["accept"]:
-                    raise NotAcceptableException()
-            
+            acceptable = False
+            for accept in route_method["accept"]:
+                if accept in route_method["accept"]:
+                    acceptable = True
+                    break
+            if not acceptable:
+                raise NotAcceptableException()
         
         if "handler" not in route_method:
             raise NotImplementedException()
         else:
             handler = route_method["handler"]
-        
+        logging.info(query)
         return Request(path, method, headers, handler, body, query)
     except Exception as e:
         logging.error(e)

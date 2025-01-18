@@ -2,10 +2,10 @@ import socket
 import logging
 from threading import Thread
 
-from methods import method_handler
+#from methods import method_handler
 from entity.models import Request, KeepAliveData, Response
 import validator
-from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
@@ -14,29 +14,6 @@ HOST_IP = "127.0.0.1"
 PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
-
-def handle_base_headers(raw_request, request, keep_alive_data) -> Response:
-    try: 
-        if "host" not in request.headers:
-            body = "HTTP/1.1 400 Bad Request"
-            return Response("HTTP/1.1 "+body, "text/plain", body, len(body))
-        
-        if "host" in request.headers and request.headers["host"] != f"{HOST_IP}:{PORT}" and request.headers["host"] != f"{HOST}:{PORT}":
-            body = "404 Not Found"
-            return Response("HTTP/1.1 "+body, "text/plain", body, len(body)) 
-        
-        response = method_handler.handle_methods(raw_request, request)
-        
-        if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
-            connection = "Keep-Alive\r\n"
-            connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-            response.connection = connection
-        
-        return response
-    except Exception as e:
-        logging.error(e)
-        raise e
-    
 
 def handle_client(client_socket, client_address):
     logging.info(f"Neue Verbindung von {client_address}\n")
@@ -54,9 +31,17 @@ def handle_client(client_socket, client_address):
                 logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
 
                 try:
+                    if len(raw_request) > 3000:
+                        raise PayloadTooLargeException
                     request = validator.unpack_request(raw_request)
-                    logging.info("after validation")
                     response = request.handler(request)
+                    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
+                        connection = "Keep-Alive\r\n"
+                        connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+                        response.connection = connection
+                    else: 
+                        response.connection = "close"
+                        keep_alive_data.max_requests = 1
                 except BadRequestException as exception:
                     response = exception.response
                 except UnsupportedMediaTypeException as exception:
@@ -68,6 +53,8 @@ def handle_client(client_socket, client_address):
                 except MethodNotAllowedException as exception:
                     response = exception.response
                 except NotImplementedException as exception:
+                    response = exception.response
+                except PayloadTooLargeException as exception:
                     response = exception.response
                 except Exception as e:
                     logging.error(e)

@@ -3,44 +3,38 @@ import xml.etree.ElementTree as ET
 import logging
 
 from entity.models import Response, Request
+from entity.enums import HttpStatus, ContentType
 
 file_path = os.getcwd() + "/handler/divs/data.html"
 
-def get_divs(request: Request) -> str:
+def get_divs(request: Request) -> Response:
     try:
         # Datei öffnen und Inhalt lesen
         with open(file_path, "r", encoding="utf-8") as file:
             data = file.read()
-        return Response("HTTP/1.1 200 OK", "text/html", data, len(data))
+        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.HTML.value, data, len(data))
     except Exception as e:
         raise e
     
-def post_divs(request: Request):
+def post_divs(request: Request) -> Response:
     try:
-        # HTML-Datei laden
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        # Das <body>-Tag finden
         body = root.find("body")
         if body is None:
             raise Exception # Ist ein 500er
 
-        # Neues HTML-Element erstellen
-        new_data = ET.fromstring(request.data)
+        new_data = ET.fromstring(request.body)
 
-        # Überprüfen, ob das Element ein <div>-Tag ist
         if new_data.tag.lower() != "div":
-            raise ValueError()
+            raise Exception()
 
-        # Neues <div>-Element zum <body> hinzufügen
         body.append(new_data)
-
-        # Änderungen in der HTML-Datei speichern
         tree.write(file_path, encoding="unicode", method="html")
-    except ValueError as e:
-        logging.error(e)
-        raise e
+
+        body = "Div successfully created!"
+        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:
         logging.error(e)
         raise e
