@@ -6,6 +6,7 @@ class HttpStatus(Enum):
     NOT_FOUND = "404 Not Found"
     METHOD_NOT_ALLOWED = "405 Method Not Allowed"
     NOT_ACCEPTABLE = "406 Not Acceptable"
+    LENGTH_REQUIRED = "411 Length Required"
     PAYLOAD_TOO_LARGE = "413 Payload Too Large"
     UNSUPPORTED_MEDIA_TYPE = "415 Unsupported Media Type"
     UNPROCESSABLE_ENTITY = "422 Unprocessable Entity"

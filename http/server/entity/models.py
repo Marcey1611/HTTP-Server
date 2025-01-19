@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
+from datetime import datetime, timezone
 
 @dataclass
 class Request:
@@ -14,10 +15,18 @@ class Request:
 @dataclass
 class Response:
     status: str
-    content_type: str
+    headers: dict
     body: str
-    content_length: int
-    connection: str = None
+
+    def build_http_response(self) -> str:
+        content_length = len(self.body)
+        self.headers["Content-Length"] = content_length
+        current_time = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+        self.headers["Date"] = current_time
+        response_line = f"HTTP/1.1 {self.status}"
+        headers_str = "\r\n".join(f"{key}: {value}" for key, value in self.headers.items())
+        http_response = f"{response_line}\r\n{headers_str}\r\n\r\n{self.body}"
+        return http_response
 
 @dataclass
 class KeepAliveData:

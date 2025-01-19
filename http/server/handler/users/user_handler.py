@@ -4,9 +4,8 @@ import logging
 
 from entity.models import Response, Request
 from entity.enums import HttpStatus, ContentType
-from entity.exceptions import BadRequestException
+from entity.exceptions import BadRequestException, UnprocessableEntityException
 
-# Datei-Pfad zur JSON-Datei
 file_path = os.getcwd() + '/handler/users/data.json'
 
 def get_users(request: Request) -> Response:
@@ -23,18 +22,21 @@ def get_users(request: Request) -> Response:
             data = filter_in(data, names, ages)
 
         data = json.dumps(data, ensure_ascii=False, indent=4)
-
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.JSON.value, data, len(data))
+        headers = {}
+        headers['Content-Type'] = ContentType.JSON.value
+        return Response(HttpStatus.OK.value, headers, data)
     except Exception as e:
         raise e
-
 
 def post_users(request: Request) -> Response:
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
 
-        new_data = json.loads(request.body)
+        try:
+            new_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            raise UnprocessableEntityException("Invalid JSON.")
 
         data["users"].append(new_data)
 
@@ -42,7 +44,11 @@ def post_users(request: Request) -> Response:
             json.dump(data, file, indent=4)
 
         body = "User(s) successfully created."
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers['Content-Type'] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
+    except UnprocessableEntityException as exception:
+        raise exception
     except Exception as e:
         logging.error(e)
         raise e
@@ -63,14 +69,20 @@ def delete_users(request: Request) -> Response:
             json.dump(data, file, indent=4)
 
         body = "User(s) successfully deleted."
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers['Content-Type'] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
     except Exception as e:
         logging.error(e)
         raise e
     
 def put_users(request: Request) -> Response:
     try:
-        users = json.loads(request.body)
+        try:
+            users = json.loads(request.body)
+        except json.JSONDecodeError:
+            raise UnprocessableEntityException("Invalid JSON.")
+
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
 
@@ -96,8 +108,11 @@ def put_users(request: Request) -> Response:
             json.dump(data, file, ensure_ascii=False, indent=4)
 
         body = "User(s) successfully updated or added."
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
-            
+        headers = {}
+        headers['Content-Type'] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
+    except UnprocessableEntityException as exception:
+        raise exception        
     except Exception as e:
         logging.error(e)
         raise e

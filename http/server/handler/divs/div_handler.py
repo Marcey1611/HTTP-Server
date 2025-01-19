@@ -4,15 +4,17 @@ import logging
 
 from entity.models import Response, Request
 from entity.enums import HttpStatus, ContentType
+from entity.exceptions import UnprocessableEntityException
 
 file_path = os.getcwd() + "/handler/divs/data.html"
 
 def get_divs(request: Request) -> Response:
     try:
-        # Datei öffnen und Inhalt lesen
         with open(file_path, "r", encoding="utf-8") as file:
             data = file.read()
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.HTML.value, data, len(data))
+        headers = {}
+        headers["Content-Type"] = ContentType.HTML.value
+        return Response(HttpStatus.OK.value, headers, data)
     except Exception as e:
         raise e
     
@@ -24,17 +26,23 @@ def post_divs(request: Request) -> Response:
         body = root.find("body")
         if body is None:
             raise Exception # Ist ein 500er
-
-        new_data = ET.fromstring(request.body)
+        try:
+            new_data = ET.fromstring(request.body)
+        except ET.ParseError:
+            raise UnprocessableEntityException("Invalid html.")
 
         if new_data.tag.lower() != "div":
-            raise Exception()
+            raise UnprocessableEntityException("Invalid html.")
 
         body.append(new_data)
         tree.write(file_path, encoding="unicode", method="html")
 
         body = "Div successfully created!"
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
+    except UnprocessableEntityException as exception:
+        raise exception
     except Exception as e:
         logging.error(e)
         raise e

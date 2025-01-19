@@ -5,6 +5,7 @@ from typing import List, Tuple
 
 from entity.models import Response, Request
 from entity.enums import HttpStatus, ContentType
+from entity.exceptions import UnprocessableEntityException
 
 file_path = os.getcwd()+"/handler/products/data.xml"
 
@@ -19,7 +20,9 @@ def get_products(request: Request) -> Response:
             names, prices = parse_query(request.query)
             data = filter_in_xml(root, names, prices)
             data = ET.tostring(data, encoding="utf-8").decode("utf-8")
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.JSON.value, data, len(data))
+        headers = {}
+        headers["Content-Type"] = ContentType.XML.value
+        return Response(HttpStatus.OK.value, headers, data)
     except Exception as e:
         raise e
     
@@ -27,12 +30,19 @@ def post_products(request: Request) -> Response:
     try:
         tree = ET.parse(file_path)
         root = tree.getroot()
-        new_product = ET.fromstring(f"<product>{request.body}</product>")
+        try:
+            new_product = ET.fromstring(f"<product>{request.body}</product>")
+        except ET.ParseError:
+            raise UnprocessableEntityException("XML invalid.")
         root.append(new_product)
         tree.write(file_path, encoding="utf-8", xml_declaration=True)
         
         body = "Product(s) successfully created!"
-        return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
+    except UnprocessableEntityException as exception:
+        raise exception
     except Exception as e:
         logging.error(e)
         raise e
@@ -51,21 +61,23 @@ def delete_products(request: Request) -> Response:
 
         tree.write(file_path, encoding="utf-8", xml_declaration=True)
         body = "Product(s) successfully deleted."
-        return Response("HTTP/1.1 " + HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
     except Exception as e:
         logging.error(e)
         raise e
 
 def put_products(request: Request) -> Response:
     try:
-        # Parse the existing XML file
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        # Parse the new products from the request body (assuming it's in valid XML format)
-        new_products = ET.fromstring(request.body)
+        try:
+            new_products = ET.fromstring(request.body)
+        except ET.ParseError:
+            raise UnprocessableEntityException("XML invalid.")
 
-        # Update existing products or add new ones
         for new_product in new_products.findall("product"):
             new_name = new_product.find("name").text if new_product.find("name") is not None else None
             new_price = new_product.find("price").text if new_product.find("price") is not None else None
@@ -87,7 +99,11 @@ def put_products(request: Request) -> Response:
 
         tree.write(file_path, encoding="utf-8", xml_declaration=True)
         body = "Product(s) successfully updated or added."
-        return Response("HTTP/1.1 " + HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        return Response(HttpStatus.OK.value, headers, body)
+    except UnprocessableEntityException as exception:
+        raise exception
     except Exception as e:
         logging.error(e)
         raise e
@@ -127,21 +143,3 @@ def filter_in_xml(data: ET.Element, names: List[str], prices: List[int]) -> ET.E
     except Exception as e:
         logging.error(e)
         raise e
-
-'''def filter_out_xml(data: ET.Element, names: List[str], prices: List[int]) -> ET.Element:
-    try:
-        filtered_root = ET.Element("products")
-        for product in data.findall("product"):
-            name = product.find("name").text if product.find("name") is not None else None
-            price = int(product.find("age").text) if product.find("age") is not None else None
-
-            if names and name in names:
-                continue
-            if prices and price in prices:
-                continue
-
-            filtered_root.append(product)
-        return filtered_root
-    except Exception as e:
-        logging.error(e)
-        raise e'''

@@ -61,7 +61,7 @@ set = {
             "handler": get_users
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -69,7 +69,7 @@ set = {
             "handler": post_users
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -95,7 +95,7 @@ set = {
             "handler": get_products
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -103,7 +103,7 @@ set = {
             "handler": post_products
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -129,7 +129,7 @@ set = {
             "handler": get_divs
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
@@ -137,7 +137,7 @@ set = {
             "handler": post_divs
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"]},
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,

@@ -2,9 +2,10 @@ import socket
 import logging
 from threading import Thread
 
-from entity.models import KeepAliveData, Response
+from entity.models import KeepAliveData, Response, Request
+from entity.enums import HttpStatus, ContentType
 import validator
-from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException, LengthRequiredException, UnprocessableEntityException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
@@ -14,35 +15,36 @@ PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
 
+def handle_connection_header(request: Request, response: Response, keep_alive_data: KeepAliveData):
+    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
+        response.headers["Connection"] = "keep-alive"
+        response.headers["Keep-Alive"] = f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+    else: 
+        response.headers["Connection"] = "close"
+        keep_alive_data.max_requests = 1
+
 def handle_client(client_socket, client_address):
     logging.info(f"Neue Verbindung von {client_address}\n")
     client_socket.settimeout(DEFAULT_TIMEOUT)
 
     keep_alive_data = KeepAliveData(DEFAULT_TIMEOUT, DEFAULT_MAX_REQUESTS, 0)
-
+    
     try:
         while keep_alive_data.request_count < keep_alive_data.max_requests:
+            request = None
             try:
                 raw_request = client_socket.recv(4096).decode()
                 if not raw_request:
                     logging.info(f"Keine Daten von {client_address}. Verbindung wird geschlossen.")
                     break
                 logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
-
                 try:
                     if len(raw_request) > 3000:
                         raise PayloadTooLargeException
 
-                    request = validator.unpack_request(raw_request)
+                    path, method, headers, body, query  = validator.unpack_request(raw_request)
+                    request = validator.validate_request(path, method, headers, body, query)
                     response = request.handler(request)
-
-                    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
-                        connection = "Keep-Alive\r\n"
-                        connection += f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-                        response.connection = connection
-                    else: 
-                        response.connection = "close"
-                        keep_alive_data.max_requests = 1
 
                 except BadRequestException as exception:
                     response = exception.response
@@ -51,7 +53,6 @@ def handle_client(client_socket, client_address):
                 except NotAcceptableException as exception:
                     response = exception.response
                 except NotFoundException as exception:
-                    logging.info("not found exception")
                     response = exception.response
                 except MethodNotAllowedException as exception:
                     response = exception.response
@@ -59,19 +60,25 @@ def handle_client(client_socket, client_address):
                     response = exception.response
                 except PayloadTooLargeException as exception:
                     response = exception.response
-                except Exception as e:
-                    logging.error(e)
-                    status = "500 Internal Server Error"
-                    response = Response("HTTP/1.1 "+status, "text/plain", status, len(status))
+                except LengthRequiredException as exception:
+                    response = exception.response
+                except UnprocessableEntityException as exception:
+                    response = exception.response
+                except Exception as exception:
+                    logging.error(exception)
+                    headers = {}
+                    headers['Content-Type'] = ContentType.PLAIN.value
+                    response = Response(HttpStatus.INTERNAL_SERVER_ERROR.value, headers, HttpStatus.INTERNAL_SERVER_ERROR.value)
 
-                http_response = (
-                    f"{response.status}\r\n"
-                    f"Content-Type: {response.content_type}\r\n"
-                    f"Content-Length: {response.content_length}\r\n"
-                    f"Connection: {response.connection}\r\n"
-                    "\r\n"
-                    f"{response.body}"
-                )
+                if "connection" in headers and "keep-alive" in headers["connection"]:
+                    response.headers["Connection"] = "keep-alive"
+                    response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+                else: 
+                    response.headers["Connection"] = "close"
+                    keep_alive_data.max_requests = 1
+
+                http_response = response.build_http_response()
+
                 client_socket.sendall(http_response.encode())
                 logging.info(f"Antwort gesendet:\n{http_response.strip()}\n")
 

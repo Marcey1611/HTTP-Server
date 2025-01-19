@@ -1,44 +1,75 @@
-# internet-project-ws2425
+### internet-project-ws2425
 
-# Supported headers
+# Server
+
+## Gneral Information
+- The server runs on port 8080.
+
+## Supported Request Headers
 - Connection: <code>keep-alive | close</code>
-- Content-Type: <code>application/json | text/html | application/xml | text/plain</code>
-- - necessary for post requests
+- - The server supports keep-alive.
+- Content-Type: <code>application/json | text/html | application/xml</code>
+- - Required for PUT and POST requests.
 - Content-Length: <code>length</code>
-- User-Agent: <code>user-agent</code>
-- - Simpler than in practice: "CustomClient" XD
-- Host: <code>host</code>
-- - In our http-server-client system example 127.0.0.1:8080 because the server and client are runing on our localhost.
+- - Required for PUT and POST requests.
+- Host: <code>host:port</code>
+- - Required for every request.
+- - If you run the server on the local machine it should be "127.0.0.1:8080" or "localhost:8080".
 - Accept: <code>application/json | text/html | application/xml | text/plain | ...</code>
-- - Which data the client accepts as response value/body.
+- - Which data the client accepts as response value/body. The server will check this header if it is working with the called ressource.
 
-# Methods and Paths
-- GET /
-- GET /info
-- GET /html
-- GET /json
-- GET /xml
-- POST /json/add_new_user
-- POST /xml/add_new_product
-- POST /html/add_data
-- DELETE /json/delete_user?name=<user>
+## Supported Response Headers
+- Connection: <code>keep-alive | close</code>
+- - In case of a connection keep-alive header in the request, in the "Sub"-Header "Keep-Alive" will be informations about the Keep-Alive-Process (because of HTTP/1.1).
+- Content-Type: <code>application/json | text/html | application/xml | text/plain</code>
+- - Which type the response body is.
+- Content-Length: <code>length</code>
+- - Length of the response body.
+- Allow: <code>GET, POST, PUT, DELTE</code>
+- - In case of an 405er here will be the allowed methods.
+- Date: <code>Sun, 19 Jan 2025 18:18:05 GMT</code>
+- - The time when the response was sent.
 
-# Available status codes
-- 200, 201, 400, 404, 405, 406, 415, 422, 500
+## Paths and their allowed Methods
+- <code>/</code> Allowed Methods
+- - <code>GET</code> - query not allwowed, no body required
+- <code>/info</code> Allowed Methods:
+- - <code>GET</code> - query not allwowed, no body required
+- <code>/users</code> Allowed Methods:
+- - <code>GET</code> - query allowed, no body required
+- - <code>POST</code> - query not allowed, body required
+- - <code>PUT</code> - query not allowed, body required
+- - <code>DELETE</code> - query allowed, no body required
+- <code>/products</code> Allowed Methods:
+- - <code>GET</code> - query allowed, no body required
+- - <code>POST</code> - query not allowed, body required
+- - <code>PUT</code> - query not allowed, body required
+- - <code>DELETE</code> - query allowed, no body required
+- <code>/divs</code> Allowed Methods:
+- - <code>GET</code> - query not allowed, no body required
+- - <code>POST</code> - query not allowed, body required
 
-# Start the server
+
+## Supported status codes (for error handling)
+- <code>200 OK</code>
+- <code>400 Bad Request</code>
+- <code>404 Not Found</code>
+- <code>405 Method Not Allowed</code>
+- <code>406 Not Acceptable</code>
+- <code>411 Length Required</code>
+- <code>413 Payload Too Large</code>
+- <code>415 Unsupported Media Type</code>
+- <code>422 Unprocessable Entity</code>
+- <code>500 Internal Server Error</code>
+- <code>501 Not Implemented</code>
+
+## Start the server
 - python server.py
 
-# Example Requests (By starting the client)
+## Example Requests (By starting the client)
 - <code>python client.py POST /json/add_user --host 127.0.0.1 --port 8080 --headers "Connection:keep-alive" "Content-Type:application/json" "Host:127.0.0.1:8080" --body '{\"name\":\"Test\",\"age\":20}'</code>
 - <code>python client.py POST /html/add_data --host 127.0.0.1 --port 8080 --headers "User-Agent:CustomClient" "Connection:keep-alive" "Content-Type:text/html" "Host:127.0.0.1:8080" --body '<div><p>TEST</p></div>'</code>
 - <code>python client.py POST /xml/add_new_product --host 127.0.0.1 --port 8080 --headers "User-Agent:CustomClient" "Connection:keep-alive" "Content-Type:application/xml" "Host:127.0.0.1:8080" --body '<product>Test</product><price>100</price>'</code>
 
-# Exmaple Requests (During Runtime of Client)
+## Exmaple Requests (During Runtime of Client)
 - <code>POST /json/add_user --headers "Connection:keep-alive" "Content-Type:application/json" "Host:127.0.0.1:8080" --body '{\"name\":\"Test\",\"age\":100}'</code>
-
-
-Fragen an Dozenten:
-- Was wäre der aktuelle Stand ganz grob für ne Note?
-- Müssen wir genau den Regeln von der HTTP Spezifikation folgen oder dürfen wir an manchen Stellen unsere eigenen Ideen einbringen? Stichwort: Keep-Alive Max-Requests in Response runterzählen
-- Auf welchem OS muss der Server laufen? Windows oder Linux? Oder beides? Problem: Input-Thread des Clients -> Nichtblockierender Input -> Unterschiedliche Lösungen bei Linux und Windows
