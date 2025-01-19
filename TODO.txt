@@ -1,6 +1,6 @@
-- GET (query) /products, /divs
-- DELETE (query) /products, /divs
-- PUT (query) /products, /divs
+~ GET query /divs
+~ DELETE (query) /divs
+~ PUT (query) /divs
 
 - GET /, /info .... Markdown Readme zurückgeben!? -> Browser
 

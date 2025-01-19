@@ -41,7 +41,7 @@ def post_users(request: Request) -> Response:
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
 
-        body = "User successfully created!"
+        body = "User(s) successfully created."
         return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:
         logging.error(e)
@@ -62,7 +62,7 @@ def delete_users(request: Request) -> Response:
         with open(file_path, "w") as file:
             json.dump(data, file, indent=4)
 
-        body = "User successfully deleted!"
+        body = "User(s) successfully deleted."
         return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
     except Exception as e:
         logging.error(e)
@@ -73,6 +73,10 @@ def put_users(request: Request) -> Response:
         users = json.loads(request.body)
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
+
+        if 'users' not in data:
+            logging.error("Kein useres in datei")
+            raise Exception # 500er
 
         if not isinstance(users, list):
             raise BadRequestException()
@@ -91,7 +95,7 @@ def put_users(request: Request) -> Response:
         with open(file_path, "w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
 
-        body = "Users successfully updated!"
+        body = "User(s) successfully updated or added."
         return Response("HTTP/1.1 "+HttpStatus.OK.value, ContentType.PLAIN.value, body, len(body))
             
     except Exception as e:

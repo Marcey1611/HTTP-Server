@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<products>
-    <product>
+<products><product>
         <name>Milk</name>
-        <price>30</price>
+        <price>25</price>
     </product>
-<product><name>XYZ</name><price>100</price></product><product><name>XYZ</name><price>100</price></product></products>
+<product>
+        <name>Product2</name>
+        <price>20</price>
+    </product>
+</products>
