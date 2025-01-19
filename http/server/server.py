@@ -73,8 +73,10 @@ def handle_client(client_socket, client_address):
                 if "connection" in headers and "keep-alive" in headers["connection"]:
                     response.headers["Connection"] = "keep-alive"
                     response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-                else: 
+                elif "connection" in headers and "close" in headers["connection"]:
                     response.headers["Connection"] = "close"
+                    keep_alive_data.max_requests = 1
+                else: 
                     keep_alive_data.max_requests = 1
 
                 http_response = response.build_http_response()

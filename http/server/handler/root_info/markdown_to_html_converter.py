@@ -30,7 +30,7 @@ def generate_full_html(markdown_text):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Markdown Viewer (Dark Mode)</title>
+        <title>Readme</title>
         <style>
             body {{
                 font-family: Arial, sans-serif;

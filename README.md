@@ -35,6 +35,7 @@
 - - <code>GET</code> - query not allwowed, no body required
 - <code>/info</code> Allowed Methods:
 - - <code>GET</code> - query not allwowed, no body required
+- - Here you can see the Readme.md of our project as html.
 - <code>/users</code> Allowed Methods:
 - - <code>GET</code> - query allowed, no body required
 - - <code>POST</code> - query not allowed, body required
@@ -49,7 +50,6 @@
 - - <code>GET</code> - query not allowed, no body required
 - - <code>POST</code> - query not allowed, body required
 
-
 ## Supported status codes (for error handling)
 - <code>200 OK</code>
 - <code>400 Bad Request</code>
@@ -63,13 +63,168 @@
 - <code>500 Internal Server Error</code>
 - <code>501 Not Implemented</code>
 
-## Start the server
+## How to start the Server
 - python server.py
 
-## Example Requests (By starting the client)
-- <code>python client.py POST /json/add_user --host 127.0.0.1 --port 8080 --headers "Connection:keep-alive" "Content-Type:application/json" "Host:127.0.0.1:8080" --body '{\"name\":\"Test\",\"age\":20}'</code>
-- <code>python client.py POST /html/add_data --host 127.0.0.1 --port 8080 --headers "User-Agent:CustomClient" "Connection:keep-alive" "Content-Type:text/html" "Host:127.0.0.1:8080" --body '<div><p>TEST</p></div>'</code>
-- <code>python client.py POST /xml/add_new_product --host 127.0.0.1 --port 8080 --headers "User-Agent:CustomClient" "Connection:keep-alive" "Content-Type:application/xml" "Host:127.0.0.1:8080" --body '<product>Test</product><price>100</price>'</code>
+## How to start the client and sending the first request
+You just can start the client and send the first request. It is not supported to start the client without sending a request. One runtime of the client will be one session with the server your calling. So the client will cancle if the session closed by the called server. You also can cancle the client with <code>STRG+C</code>.
+We sill explain how to start the client by following exmaples:
+- <code>python client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"</code>
+- <code>python client.py POST /products --host 127.0.0.1 --port 8080 --headers "Content-Length: 54" "Content-Type:application/xml" --body '`<product><name>Test</name><price>100</price></product>`'</code>
+- <code>python client.py DELETE /users?name=Max --host 127.0.0.1 --port 8080</code>
 
-## Exmaple Requests (During Runtime of Client)
-- <code>POST /json/add_user --headers "Connection:keep-alive" "Content-Type:application/json" "Host:127.0.0.1:8080" --body '{\"name\":\"Test\",\"age\":100}'</code>
+As you canmn see we starting the python script with <code>python client.py</code> and then we add the method and path which should be called: <code>GET /</code>, <code>POST /products</code> or <code>DELETE /users?name=Max</code>. After this we define the host and port of the host which should called <code>--host 127.0.0.1 --port 8080</code>. Then we can add some headers for example: <code>--headers "Connection: keep-alive"</code> (here we setting the headers Connection to keep-alive) or <code>--headers "Content-Length: 54" "Content-Type:application/xml"</code> (here we setting the length of the body as content-length and the content-type of the provided body). Finally we can add a body: <code>--body '`<product><name>Test</name><price>100</price></product>`'</code>
+
+## How to handle the client during runtime
+During the runtime you can simply use the commands from above just without the <code>python client.py</code> part, the --host and --port parameters and also without the Connection-Header because are now in a "Keep-Alive" session.
+
+## The config- or validation-set of our http-server
+{  
+    "/": {  
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/plain"],
+            "handler": get_root
+        }
+    },
+    "/info": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/plain"],
+            "handler": get_info
+        }
+    },
+    "/info/routes": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/plain"]
+        }
+    },
+    "/info/headers": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/plain"]
+        }
+    },
+    "/info/general": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/plain"]
+        }
+    },
+    "/users": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": True,
+            "accept": ["*/*", "application/json"],
+            "handler": get_users
+        },
+        "POST": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "application/json"],
+            "handler": post_users
+        },
+        "PUT": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "application/json"],
+            "handler": put_users
+        },
+        "DELETE": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": True,
+            "query_allowed": True,
+            "accept": ["*/*", "application/json"],
+            "handler": delete_users
+        }
+    },
+    "/products": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": True,
+            "accept": ["*/*", "application/xml"],
+            "handler": get_products
+        },
+        "POST": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "application/xml"],
+            "handler": post_products
+        },
+        "PUT": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "application/xml"],
+            "handler": put_products
+        },
+        "DELETE": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": True,
+            "query_allowed": True,
+            "accept": ["*/*", "application/xml"],
+            "handler": delete_products
+        }
+    },
+    "/divs": {
+        "GET": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/html"],
+            "handler": get_divs
+        },
+        "POST": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/html"],
+            "handler": post_divs
+        },
+        "PUT": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
+            "body_required": True,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "text/html"]
+        },
+        "DELETE": {
+            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "body_required": False,
+            "query_required": True,
+            "query_allowed": True,
+            "accept": ["*/*", "text/html"]
+        }
+    }
+}

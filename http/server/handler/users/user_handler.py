@@ -63,7 +63,9 @@ def delete_users(request: Request) -> Response:
             raise Exception # 500er
         
         names, ages = parse_query(request.query)
-        data = filter_out(data, names, ages)
+        filtered_users = filter_out(data, names, ages)
+
+        data["users"] = filtered_users
 
         with open(file_path, "w") as file:
             json.dump(data, file, indent=4)

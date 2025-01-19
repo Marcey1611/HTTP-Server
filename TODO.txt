@@ -2,6 +2,6 @@
 ~ DELETE (query) /divs
 ~ PUT (query) /divs
 
-- GET /, /info .... Markdown Readme zurückgeben!? -> Browser
+- GET /config -> link in /info 
 
 - Basic Auth Implementieren
