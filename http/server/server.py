@@ -5,7 +5,7 @@ from threading import Thread
 from entity.models import KeepAliveData, Response, Request
 from entity.enums import HttpStatus, ContentType
 import validator
-from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException, LengthRequiredException, UnprocessableEntityException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException, LengthRequiredException, UnprocessableEntityException, UnauthorizedException, ForbiddenException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
@@ -14,6 +14,18 @@ HOST_IP = "127.0.0.1"
 PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
+
+def handle_connection_header(headers, keep_alive_data, response, connection_keep_alive):
+    if "connection" not in headers and not connection_keep_alive:
+        keep_alive_data.max_requests = 1
+    elif "connection" in headers and "close" in headers["connection"]:
+        response.headers["Connection"] = "close"
+        keep_alive_data.max_requests = 1
+    elif ("connection" in headers and "keep-alive" in headers["connection"]) or connection_keep_alive:
+        response.headers["Connection"] = "keep-alive"
+        response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+        connection_keep_alive = True
+    return response, connection_keep_alive, keep_alive_data
 
 def handle_client(client_socket, client_address):
     connection_keep_alive = False
@@ -36,26 +48,20 @@ def handle_client(client_socket, client_address):
                         raise PayloadTooLargeException
 
                     path, method, headers, body, query  = validator.unpack_request(raw_request)
-                    request = validator.validate_request(path, method, headers, body, query)
+                    request = validator.validate_request(path, method, headers, body, query, HOST, HOST_IP, PORT)
                     response = request.handler(request)
 
-                except BadRequestException as exception:
-                    response = exception.response
-                except UnsupportedMediaTypeException as exception:
-                    response = exception.response
-                except NotAcceptableException as exception:
-                    response = exception.response
-                except NotFoundException as exception:
-                    response = exception.response
-                except MethodNotAllowedException as exception:
-                    response = exception.response
-                except NotImplementedException as exception:
-                    response = exception.response
-                except PayloadTooLargeException as exception:
-                    response = exception.response
-                except LengthRequiredException as exception:
-                    response = exception.response
-                except UnprocessableEntityException as exception:
+                except (NotFoundException, 
+                        MethodNotAllowedException, 
+                        BadRequestException, 
+                        UnsupportedMediaTypeException, 
+                        NotAcceptableException, 
+                        NotImplementedException, 
+                        PayloadTooLargeException, 
+                        LengthRequiredException, 
+                        UnprocessableEntityException, 
+                        UnauthorizedException, 
+                        ForbiddenException) as exception:
                     response = exception.response
                 except Exception as exception:
                     logging.error(exception)
@@ -63,15 +69,7 @@ def handle_client(client_socket, client_address):
                     headers['Content-Type'] = ContentType.PLAIN.value
                     response = Response(HttpStatus.INTERNAL_SERVER_ERROR.value, headers, HttpStatus.INTERNAL_SERVER_ERROR.value)
 
-                if "connection" not in headers and not connection_keep_alive:
-                    keep_alive_data.max_requests = 1
-                elif "connection" in headers and "close" in headers["connection"]:
-                    response.headers["Connection"] = "close"
-                    keep_alive_data.max_requests = 1
-                elif ("connection" in headers and "keep-alive" in headers["connection"]) or connection_keep_alive:
-                    response.headers["Connection"] = "keep-alive"
-                    response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-                    connection_keep_alive = True
+                response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
 
                 http_response = response.build_http_response()
 
@@ -95,8 +93,14 @@ def handle_client(client_socket, client_address):
 
 def run_server():
     global server_running
+    global HOST
+    global PORT
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((HOST_IP, PORT))
+    try:
+        server_socket.bind((HOST_IP, PORT))
+    except OSError as e:
+        server_socket.bind((HOST_IP, 0))
+        PORT = server_socket.getsockname()[1]
     server_socket.listen(5)
     server_socket.settimeout(1.0)
 

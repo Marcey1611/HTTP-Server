@@ -75,3 +75,19 @@ class UnprocessableEntityException(Exception):
         self.response = Response(HttpStatus.UNPROCESSABLE_ENTITY.value, headers, self.message)
         super().__init__(self.message)
 
+class UnauthorizedException(Exception):
+    def __init__(self, message=HttpStatus.UNAUTHORIZED.value):
+        self.message = message
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        self.response = Response(HttpStatus.UNAUTHORIZED.value, headers, self.message)
+        super().__init__(self.message)
+
+class ForbiddenException(Exception):
+    def __init__(self, message=HttpStatus.FORBIDDEN.value):
+        self.message = message
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        self.response = Response(HttpStatus.FORBIDDEN.value, headers, self.message)
+        super().__init__(self.message)
+

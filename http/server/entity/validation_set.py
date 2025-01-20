@@ -6,149 +6,150 @@ from handler.root_info.root_info_handler import get_root, get_info
 set = {
     "/": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/plain"],
-            "handler": get_root
+            "handler": get_root,
+            "auth_required": False
         }
     },
     "/info": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/plain"],
-            "handler": get_info
+            "handler": get_info,
+            "auth_required": False
         }
     },
     "/info/routes": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"]
+            "accept": ["*/*", "text/plain"],
+            "auth_required": False
         }
     },
     "/info/headers": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"]
+            "accept": ["*/*", "text/plain"],
+            "auth_required": False
         }
     },
     "/info/general": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"]
+            "accept": ["*/*", "text/plain"],
+            "auth_required": False
         }
     },
     "/users": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": True,
             "accept": ["*/*", "application/json"],
-            "handler": get_users
+            "handler": get_users,
+            "auth_required": False
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
+            "required_headers": {"host": ["set in server.py"], "content-type": ["application/json"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/json"],
-            "handler": post_users
+            "handler": post_users,
+            "auth_required": True
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/json"], "content-length": []},
+            "required_headers": {"host": ["set in server.py"], "content-type": ["application/json"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/json"],
-            "handler": put_users
+            "handler": put_users,
+            "auth_required": True
         },
         "DELETE": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": True,
             "query_allowed": True,
             "accept": ["*/*", "application/json"],
-            "handler": delete_users
+            "handler": delete_users,
+            "auth_required": True
         }
     },
     "/products": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": True,
             "accept": ["*/*", "application/xml"],
-            "handler": get_products
+            "handler": get_products,
+            "auth_required": False
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
+            "required_headers": {"host": ["set in server.py"], "content-type": ["application/xml"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/xml"],
-            "handler": post_products
+            "handler": post_products,
+            "auth_required": True
         },
         "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["application/xml"], "content-length": []},
+            "required_headers": {"host": ["set in server.py"], "content-type": ["application/xml"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "application/xml"],
-            "handler": put_products
+            "handler": put_products,
+            "auth_required": True
         },
         "DELETE": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": True,
             "query_allowed": True,
             "accept": ["*/*", "application/xml"],
-            "handler": delete_products
+            "handler": delete_products,
+            "auth_required": True
         }
     },
     "/divs": {
         "GET": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
+            "required_headers": {"host": ["set in server.py"]},
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/html"],
-            "handler": get_divs
+            "handler": get_divs,
+            "auth_required": False
         },
         "POST": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
+            "required_headers": {"host": ["set in server.py"], "content-type": ["text/html"], "content-length": []},
             "body_required": True,
             "query_required": False,
             "query_allowed": False,
             "accept": ["*/*", "text/html"],
-            "handler": post_divs
-        },
-        "PUT": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"], "content-type": ["text/html"], "content-length": []},
-            "body_required": True,
-            "query_required": False,
-            "query_allowed": False,
-            "accept": ["*/*", "text/html"]
-        },
-        "DELETE": {
-            "required_headers": {"host": ["127.0.0.1:8080", "localhost:8080"]},
-            "body_required": False,
-            "query_required": True,
-            "query_allowed": True,
-            "accept": ["*/*", "text/html"]
+            "handler": post_divs,
+            "auth_required": True
         }
     }
 }

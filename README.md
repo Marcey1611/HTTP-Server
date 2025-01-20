@@ -12,11 +12,17 @@
 - - Required for PUT and POST requests.
 - Content-Length: <code>length</code>
 - - Required for PUT and POST requests.
+- - Will be set automatically by the client.
 - Host: <code>host:port</code>
 - - Required for every request.
 - - If you run the server on the local machine it should be "127.0.0.1:8080" or "localhost:8080".
 - Accept: <code>application/json | text/html | application/xml | text/plain | ...</code>
 - - Which data the client accepts as response value/body. The server will check this header if it is working with the called ressource.
+- Authorization: <code>Basic user:password</code>
+- - Important: WWW-Authenticate header not supported yet. (keine Zeit mehr gehabt)
+- - The client encodes in base64 so you can give him the plain user:password combination.
+- - The password will be hashed and the server will check its hash table if the password hash is correct for the given user.
+- - Authorization is not required with GET requests.
 
 ## Supported Response Headers
 - Connection: <code>keep-alive | close</code>

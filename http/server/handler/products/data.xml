@@ -7,4 +7,4 @@
         <name>Product2</name>
         <price>20</price>
     </product>
-</products>
+<product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product></products>

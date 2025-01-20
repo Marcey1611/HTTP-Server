@@ -6,6 +6,8 @@ import time
 import shlex
 import select
 import sys
+import base64
+import hashlib
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -23,7 +25,7 @@ def send_request(client_socket, method, path, host, port, headers, body):
         request = f"{method} {path} HTTP/1.1\r\nHost: {host}:{port}\r\n"
         for key, value in headers.items():
             request += f"{key}: {value}\r\n"
-        if body:
+        if body and "Content-Length" not in headers:
             request += f"Content-Length: {len(body)}\r\n"
         request += "\r\n"
 
@@ -72,7 +74,33 @@ def convert_headers_to_dict(args):
         for header in args.headers:
             if ":" in header:
                 key, value = header.split(":", 1)
-                headers[key.strip()] = value.strip()
+                key = key.strip()
+                value = value.strip()
+
+                # Spezielle Verarbeitung für den Authorization-Header
+                if key.lower() == "authorization" and value.lower().startswith("basic "):
+                    # Extrahiere den Benutzernamen und das Passwort
+                    credentials = value[6:].strip()  # Entferne "Basic "
+                    
+                    if ":" not in credentials:
+                        raise ValueError("Authorization format should be 'username:password'")
+
+                    username, password = credentials.split(":", 1)
+                    
+                    # Hashe das Passwort
+                    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+                    logging.info(hashed_password)
+                    
+                    # Kombiniere Benutzername und gehashtes Passwort
+                    new_credentials = f"{username}:{hashed_password}"
+                    
+                    # Kodierung in Base64
+                    base64_credentials = base64.b64encode(new_credentials.encode()).decode("utf-8")
+                    
+                    # Aktualisiere den Authorization-Header
+                    value = f"Basic {base64_credentials}"
+
+                headers[key] = value
     return headers
 
 
