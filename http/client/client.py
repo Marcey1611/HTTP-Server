@@ -62,17 +62,6 @@ def process_command(command):
     try:
         # Parse command
         args = parser.parse_args(shlex.split(command))
-
-        # Body prüfen
-        body = None
-        if args.body:
-            body = args.body
-
-        # Ergebnis ausgeben
-        print(f"Method: {args.method}")
-        print(f"Path: {args.path}")
-        print(f"Headers: {args.headers}")
-        print(f"Body: {body}")
     except Exception as e:
         print(f"Fehler beim Verarbeiten des Befehls: {e}")
     return args
@@ -103,7 +92,6 @@ def input_thread_function(stop_event, client_socket):
     Funktion für den Benutzereingabe-Thread, der nicht blockiert.
     """
     host, port = client_socket.getpeername()
-    print("Request: ", end="", flush=True)  # Hinweis für Benutzereingabe
     while not stop_event.is_set():
         try:
             # Prüfen, ob Daten auf stdin verfügbar sind
@@ -113,7 +101,6 @@ def input_thread_function(stop_event, client_socket):
                     args = process_command(user_input)
                     headers = convert_headers_to_dict(args)
                     send_request(client_socket, args.method, args.path, host, port, headers, args.body)
-                print("Request: ", end="", flush=True)  # Hinweis für nächste Eingabe
         except Exception as e:
             logging.error(f"Fehler im Eingabethread: {e}")
             stop_event.set()
@@ -126,6 +113,11 @@ def main():
     body = args.body
     logging.info(f"Body: {body}")
 
+    connection_keep_alive = False
+
+    if "Connection" in headers and headers["Connection"] == "keep-alive":
+        connection_keep_alive = True
+
     client_socket = None  # Vorinitialisierung, um Fehler im finally-Block zu vermeiden
     try:
         client_socket = create_connection(args)
@@ -134,9 +126,10 @@ def main():
         # Stop-Ereignis für den Benutzereingabe-Thread
         stop_event = threading.Event()
 
-        # Benutzereingabe-Thread starten
-        input_thread = threading.Thread(target=input_thread_function, args=(stop_event, client_socket))
-        input_thread.start()
+        if connection_keep_alive:
+            # Benutzereingabe-Thread starten
+            input_thread = threading.Thread(target=input_thread_function, args=(stop_event, client_socket))
+            input_thread.start()
 
         # Warten auf Server-Antwort oder Benutzerabbruch
         while not stop_event.is_set():
@@ -146,7 +139,8 @@ def main():
                     response = client_socket.recv(4096).decode()
                     if response:
                         logging.info(f"Antwort:\n{response}")
-                        logging.info("Gib eine neue Anfrage ein (z. B. GET /) oder 'exit' zum Beenden: ")
+                        if connection_keep_alive:
+                            logging.info("Gib eine neue Anfrage ein (z. B. GET /) oder 'exit' zum Beenden: ")
                     if not response:  # Verbindung wurde vom Server geschlossen
                         logging.info("Verbindung zum Server wurde geschlossen.")
                         stop_event.set()

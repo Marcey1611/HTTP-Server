@@ -15,15 +15,8 @@ PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
 
-def handle_connection_header(request: Request, response: Response, keep_alive_data: KeepAliveData):
-    if "connection" in request.headers and "keep-alive" in request.headers["connection"]:
-        response.headers["Connection"] = "keep-alive"
-        response.headers["Keep-Alive"] = f"Keep-Alive: timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
-    else: 
-        response.headers["Connection"] = "close"
-        keep_alive_data.max_requests = 1
-
 def handle_client(client_socket, client_address):
+    connection_keep_alive = False
     logging.info(f"Neue Verbindung von {client_address}\n")
     client_socket.settimeout(DEFAULT_TIMEOUT)
 
@@ -70,12 +63,15 @@ def handle_client(client_socket, client_address):
                     headers['Content-Type'] = ContentType.PLAIN.value
                     response = Response(HttpStatus.INTERNAL_SERVER_ERROR.value, headers, HttpStatus.INTERNAL_SERVER_ERROR.value)
 
-                if "connection" in headers and "keep-alive" in headers["connection"]:
-                    response.headers["Connection"] = "keep-alive"
-                    response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+                if "connection" not in headers and not connection_keep_alive:
+                    keep_alive_data.max_requests = 1
                 elif "connection" in headers and "close" in headers["connection"]:
                     response.headers["Connection"] = "close"
                     keep_alive_data.max_requests = 1
+                elif ("connection" in headers and "keep-alive" in headers["connection"]) or connection_keep_alive:
+                    response.headers["Connection"] = "keep-alive"
+                    response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
+                    connection_keep_alive = True
 
                 http_response = response.build_http_response()
 
