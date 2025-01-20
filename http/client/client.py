@@ -2,9 +2,11 @@ import socket
 import argparse
 import logging
 import threading
-import msvcrt
 import time
 import shlex
+import sys
+import termios
+import tty
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -99,16 +101,17 @@ def create_connection(args):
 
 def input_thread_function(stop_event, client_socket):
     """
-    Funktion für den Benutzereingabe-Thread.
+    Funktion für den Benutzereingabe-Thread unter Linux.
     """
     host, port = client_socket.getpeername()
     user_input = ""
-    while not stop_event.is_set():
-        try:
-            # Prüfen, ob eine Taste gedrückt wurde
-            if msvcrt.kbhit():
-                char = msvcrt.getwch()  # Einzelnes Zeichen lesen
-                if char == "\r":  # Enter-Taste erkannt
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        while not stop_event.is_set():
+            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                char = sys.stdin.read(1)
+                if char == "\n":  # Enter-Taste erkannt
                     print("")  # Neue Zeile in der Konsole
                     if user_input.lower() in ["exit", "quit"]:
                         logging.info("Beenden des Clients...")
@@ -122,18 +125,18 @@ def input_thread_function(stop_event, client_socket):
                     except ValueError:
                         logging.error("Ungültige Eingabe! Beispiel: GET /")
                     user_input = ""  # Eingabe zurücksetzen
-                elif char == "\b":  # Backspace-Taste erkannt
+                elif char == "\x7f":  # Backspace-Taste erkannt
                     user_input = user_input[:-1]
                     print("\b \b", end="", flush=True)  # Zeichen löschen
                 else:
                     user_input += char
                     print(char, end="", flush=True)  # Zeichen anzeigen
             time.sleep(0.1)  # Kurz warten, um CPU-Auslastung zu reduzieren
-        except KeyboardInterrupt:
-            logging.info("Abbruch durch Benutzer (Ctrl+C).")
-            stop_event.set()
-            break
-
+    except KeyboardInterrupt:
+        logging.info("Abbruch durch Benutzer (Ctrl+C).")
+        stop_event.set()
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
 def main():
     args = initial_parse_args()

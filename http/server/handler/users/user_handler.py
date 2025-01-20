@@ -5,6 +5,7 @@ import logging
 from entity.models import Response, Request
 from entity.enums import HttpStatus, ContentType
 from entity.exceptions import BadRequestException, UnprocessableEntityException
+from typing import List
 
 file_path = os.getcwd() + '/handler/users/data.json'
 
@@ -139,7 +140,7 @@ def parse_query(query: str) -> list:
         logging.error(e)
         raise e
 
-def filter_in(data: json, names: list[str], ages: list[int]):
+def filter_in(data: json, names: List[str], ages: List[int]):
     try:
         filtered_users = []
         for user in data.get("users"):
@@ -153,7 +154,7 @@ def filter_in(data: json, names: list[str], ages: list[int]):
         logging.error(e)
         raise e
 
-def filter_out(data: json, names: list[str], ages: list[int]):
+def filter_out(data: json, names: List[str], ages: List[int]):
     try:
         filtered_users = []
         for user in data.get("users"):
