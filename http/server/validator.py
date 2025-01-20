@@ -25,7 +25,6 @@ def unpack_request(raw_request):
             header_part = raw_request  # Falls kein Body vorhanden ist, ist alles der Header
         headers = parse_headers(header_part)
         return path, method, headers, body, query
-        return validate_request(path, method, headers, body, query)
     except Exception as e:
         logging.error(e)
         raise e
@@ -40,7 +39,7 @@ def parse_headers(header_part):
                 raise BadRequestException()
             key, value = line.split(":", 1)
             key = key.strip().lower()
-            values = [v.strip() for v in value.split(",")]
+            values = [v.split(";")[0].strip() for v in value.split(",")]
             headers[key] = values
 
         return headers
@@ -87,7 +86,7 @@ def validate_request(path, method, headers, body, query):
         if "accept" in headers:
             acceptable = False
             for accept in route_method["accept"]:
-                if accept in route_method["accept"]:
+                if accept in headers["accept"]:
                     acceptable = True
                     break
             if not acceptable:

@@ -4,9 +4,8 @@ import logging
 import threading
 import time
 import shlex
+import select
 import sys
-import termios
-import tty
 
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -101,42 +100,25 @@ def create_connection(args):
 
 def input_thread_function(stop_event, client_socket):
     """
-    Funktion für den Benutzereingabe-Thread unter Linux.
+    Funktion für den Benutzereingabe-Thread, der nicht blockiert.
     """
     host, port = client_socket.getpeername()
-    user_input = ""
-    old_settings = termios.tcgetattr(sys.stdin)
-    try:
-        tty.setcbreak(sys.stdin.fileno())
-        while not stop_event.is_set():
-            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                char = sys.stdin.read(1)
-                if char == "\n":  # Enter-Taste erkannt
-                    print("")  # Neue Zeile in der Konsole
-                    if user_input.lower() in ["exit", "quit"]:
-                        logging.info("Beenden des Clients...")
-                        stop_event.set()
-                        break
-                    try:
-                        args = process_command(user_input)
-                        headers = convert_headers_to_dict(args)
-
-                        send_request(client_socket, args.method, args.path, host, port, headers, args.body)
-                    except ValueError:
-                        logging.error("Ungültige Eingabe! Beispiel: GET /")
-                    user_input = ""  # Eingabe zurücksetzen
-                elif char == "\x7f":  # Backspace-Taste erkannt
-                    user_input = user_input[:-1]
-                    print("\b \b", end="", flush=True)  # Zeichen löschen
-                else:
-                    user_input += char
-                    print(char, end="", flush=True)  # Zeichen anzeigen
-            time.sleep(0.1)  # Kurz warten, um CPU-Auslastung zu reduzieren
-    except KeyboardInterrupt:
-        logging.info("Abbruch durch Benutzer (Ctrl+C).")
-        stop_event.set()
-    finally:
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+    print("Request: ", end="", flush=True)  # Hinweis für Benutzereingabe
+    while not stop_event.is_set():
+        try:
+            # Prüfen, ob Daten auf stdin verfügbar sind
+            if select.select([sys.stdin], [], [], 0.5)[0]:  # Timeout von 0.5 Sekunden
+                user_input = sys.stdin.readline().strip()  # Lesen der Eingabe
+                if user_input:  # Wenn Eingabe vorhanden ist
+                    args = process_command(user_input)
+                    headers = convert_headers_to_dict(args)
+                    send_request(client_socket, args.method, args.path, host, port, headers, args.body)
+                print("Request: ", end="", flush=True)  # Hinweis für nächste Eingabe
+        except Exception as e:
+            logging.error(f"Fehler im Eingabethread: {e}")
+            stop_event.set()
+            break
+    logging.info("Eingabethread beendet.")
 
 def main():
     args = initial_parse_args()

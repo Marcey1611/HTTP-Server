@@ -76,8 +76,6 @@ def handle_client(client_socket, client_address):
                 elif "connection" in headers and "close" in headers["connection"]:
                     response.headers["Connection"] = "close"
                     keep_alive_data.max_requests = 1
-                else: 
-                    keep_alive_data.max_requests = 1
 
                 http_response = response.build_http_response()
 
