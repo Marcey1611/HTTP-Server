@@ -10,7 +10,7 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"],
+            "accept": ["*/*", "text/html"],
             "handler": get_root,
             "auth_required": False
         }
@@ -21,7 +21,7 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"],
+            "accept": ["*/*", "text/html"],
             "handler": get_info,
             "auth_required": False
         }
@@ -32,7 +32,7 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"],
+            "accept": ["*/*", "text/html"],
             "auth_required": False
         }
     },
@@ -42,7 +42,7 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"],
+            "accept": ["*/*", "text/html"],
             "auth_required": False
         }
     },
@@ -52,7 +52,7 @@ set = {
             "body_required": False,
             "query_required": False,
             "query_allowed": False,
-            "accept": ["*/*", "text/plain"],
+            "accept": ["*/*", "text/html"],
             "auth_required": False
         }
     },

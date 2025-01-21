@@ -1,14 +1,23 @@
 python3 client.py GET / --host 127.0.0.1 --port 8080
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: */*"
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: text/html"
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: text/plain, */*"
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
 GET /
 
-python3 client.py GET / --host 127.0.0.1 --port 8080
-GET /
+python3 client.py GET /users --host 127.0.0.1 --port 8080
+python3 client.py GET /users --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
+GET /users
 
-python3 client.py GET / --host 127.0.0.1 --port 8080
-GET /
+python3 client.py GET /products --host 127.0.0.1 --port 8080
+python3 client.py GET /products --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
+GET /products
 
-python3 client.py GET / --host 127.0.0.1 --port 8080
-GET /
+python3 client.py GET /divs --host 127.0.0.1 --port 8080
+python3 client.py GET /divs --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
+GET /divs
 
-python3 client.py GET / --host 127.0.0.1 --port 8080
-GET /
+python3 client.py GET /info --host 127.0.0.1 --port 8080
+python3 client.py GET /info --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
+GET /info
+
