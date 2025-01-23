@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<products><product>
+<products>
+    <product>
         <name>Milk</name>
         <price>25</price>
     </product>
-<product>
+    <product>
         <name>Product2</name>
         <price>20</price>
     </product>
-<product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product></products>
+<product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><product><name>Test</name><price>100</price></product></product><product><name>XYZ</name><price>100</price></product><product><name>XYZ</name><price>100</price></product><product><name>XYZ</name><price>100</price></product></products>

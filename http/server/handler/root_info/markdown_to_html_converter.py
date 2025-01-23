@@ -1,24 +1,20 @@
 import re
 
 def markdown_to_html(markdown_text):
-    # Wandelt Überschriften um (# -> <h1>, ## -> <h2>, etc.)
     markdown_text = re.sub(r"^# (.+)", r"<h1>\1</h1>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"^## (.+)", r"<h2>\1</h2>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"^### (.+)", r"<h3>\1</h3>", markdown_text, flags=re.MULTILINE)
 
-    # Fett und Kursiv (** oder __ für Fett, * oder _ für Kursiv)
     markdown_text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", markdown_text)
     markdown_text = re.sub(r"__(.+?)__", r"<strong>\1</strong>", markdown_text)
     markdown_text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", markdown_text)
     markdown_text = re.sub(r"_(.+?)_", r"<em>\1</em>", markdown_text)
 
-    # Ungeordnete Listen (- oder * am Zeilenanfang)
     markdown_text = re.sub(r"^\s*[-*] (.+)", r"<li>\1</li>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"(<li>.+</li>)", r"<ul>\1</ul>", markdown_text, flags=re.DOTALL)
 
-    # Absatz (Doppelte Zeilenumbrüche -> <p>)
     markdown_text = re.sub(r"\n\n+", r"</p><p>", markdown_text)
-    markdown_text = f"<p>{markdown_text}</p>"  # Umschließen in <p>
+    markdown_text = f"<p>{markdown_text}</p>"
 
     return markdown_text
 

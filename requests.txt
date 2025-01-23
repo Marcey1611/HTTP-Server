@@ -21,3 +21,7 @@ python3 client.py GET /info --host 127.0.0.1 --port 8080
 python3 client.py GET /info --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
 GET /info
 
+
+
+
+python client.py POST /products --host 127.0.0.1 --port 8080 --headers "Content-Length: 54" "Content-Type:application/xml" --body "<product><name>Test</name><price>100</price></product>"

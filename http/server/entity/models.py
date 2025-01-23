@@ -19,7 +19,7 @@ class Response:
     body: str
 
     def build_http_response(self) -> str:
-        content_length = len(self.body)
+        content_length = len(self.body.encode('utf-8'))
         self.headers["Content-Length"] = content_length
         current_time = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
         self.headers["Date"] = current_time

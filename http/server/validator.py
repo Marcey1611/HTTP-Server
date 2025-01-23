@@ -21,12 +21,11 @@ def unpack_request(raw_request):
         if "?" in path:
             query = path.split("?")[1]
             path = path.split("?")[0]
-        # Header und Body trennen
         if "\r\n\r\n" in raw_request:
             header_part = raw_request.split("\r\n\r\n", 1)[0]
             body = raw_request.split("\r\n\r\n", 1)[1]
         else:
-            header_part = raw_request  # Falls kein Body vorhanden ist, ist alles der Header
+            header_part = raw_request
         headers = parse_headers(header_part)
         return path, method, headers, body, query
     except Exception as e:
@@ -50,7 +49,6 @@ def parse_headers(header_part):
     except Exception as e:
         logging.error(e)
         raise e
-
     
 def validate_request(path, method, headers, body, query, host, host_ip, port):
     try:
@@ -71,8 +69,6 @@ def validate_request(path, method, headers, body, query, host, host_ip, port):
             raise BadRequestException("Missing required query.")
         if not route_method["query_allowed"] and query:
             raise BadRequestException("Query not allowed.")
-        
-        
         
         if "handler" not in route_method:
             raise NotImplementedException("Ressource not implemented yet.")
@@ -126,7 +122,7 @@ def validate_headers(route_method, headers, host, host_ip, port, body):
         if header == "content-length" and "content-length" not in headers:
             raise BadRequestException("Invalid content-length.")
 
-    if "content-length" in headers and len(body) != int(headers["content-length"][0]):
+    if "content-length" in headers and len(body.encode("utf-8")) != int(headers["content-length"][0]):
             raise BadRequestException("Invalid content-length.")
 
     if "accept" in headers:

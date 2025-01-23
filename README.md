@@ -4,6 +4,7 @@
 
 ## Gneral Information
 - The server runs on port 8080.
+- We used chatGPT and Tabnine partly as support, for example to comment the code in detail.
 
 ## Supported Request Headers
 - Connection: <code>keep-alive | close</code>

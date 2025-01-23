@@ -1,5 +1,4 @@
 import os
-import logging
 
 from entity.models import Request, Response
 from entity.enums import HttpStatus, ContentType

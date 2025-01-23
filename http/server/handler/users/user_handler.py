@@ -31,18 +31,23 @@ def get_users(request: Request) -> Response:
 
 def post_users(request: Request) -> Response:
     try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-
         try:
-            new_data = json.loads(request.body)
+            new_users = json.loads(request.body)
         except json.JSONDecodeError:
             raise UnprocessableEntityException("Invalid JSON.")
+        
+        with open(file_path, 'r', encoding="utf-8") as file:
+            data = json.load(file)
 
-        data["users"].append(new_data)
+        if 'users' not in data:
+            logging.error("Kein useres in datei")
+            raise Exception # 500er
 
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
+        for user in new_users:
+            data["users"].append(user)
+
+        with open(file_path, 'w', encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
         body = "User(s) successfully created."
         headers = {}
@@ -92,9 +97,6 @@ def put_users(request: Request) -> Response:
         if 'users' not in data:
             logging.error("Kein useres in datei")
             raise Exception # 500er
-
-        if not isinstance(users, list):
-            raise BadRequestException()
         
         for user in users:
             if not isinstance(user, dict) or "name" not in user or "age" not in user:

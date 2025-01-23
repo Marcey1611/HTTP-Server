@@ -44,10 +44,10 @@ def handle_client(client_socket, client_address):
                     break
                 logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
                 try:
-                    if len(raw_request) > 3000:
-                        raise PayloadTooLargeException
 
                     path, method, headers, body, query  = validator.unpack_request(raw_request)
+                    if len(raw_request) > 3000:
+                        raise PayloadTooLargeException("Request too large.")
                     request = validator.validate_request(path, method, headers, body, query, HOST, HOST_IP, PORT)
                     response = request.handler(request)
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     try:
         while server_thread.is_alive():
-            server_thread.join(1)  # Warten auf Strg + C
+            server_thread.join(1)
     except KeyboardInterrupt:
         logging.info("Strg + C erkannt. Server wird beendet...")
-        server_running = False  # Setze Flag auf False, um den Server zu beenden
+        server_running = False
