@@ -80,6 +80,7 @@ class UnauthorizedException(Exception):
         self.message = message
         headers = {}
         headers["Content-Type"] = ContentType.PLAIN.value
+        headers["WWW-Authenticate"] = "Basic realm=\"Unhackable Area\""
         self.response = Response(HttpStatus.UNAUTHORIZED.value, headers, self.message)
         super().__init__(self.message)
 
@@ -88,6 +89,7 @@ class ForbiddenException(Exception):
         self.message = message
         headers = {}
         headers["Content-Type"] = ContentType.PLAIN.value
+        headers["WWW-Authenticate"] = "Basic realm=\"Unhackable Area\""
         self.response = Response(HttpStatus.FORBIDDEN.value, headers, self.message)
         super().__init__(self.message)
 

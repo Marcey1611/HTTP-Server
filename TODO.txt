@@ -3,5 +3,3 @@
 ~ PUT (query) /divs
 
 - GET /config -> link in /info 
-
-- Basic Auth Implementieren

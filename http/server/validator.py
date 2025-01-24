@@ -60,7 +60,7 @@ def validate_request(path, method, headers, body, query, host, host_ip, port):
             raise MethodNotAllowedException(allowed_methods, "Method not allowed.")
         route_method = route[method]
 
-        validate_authorization(route_method, headers)
+        validate_authorization(route_method, headers, method)
         validate_headers(route_method, headers, host, host_ip, port, body)
             
         if route_method["body_required"] and not body:
@@ -80,7 +80,7 @@ def validate_request(path, method, headers, body, query, host, host_ip, port):
         logging.error(e)
         raise e
     
-def validate_authorization(route_method, headers):
+def validate_authorization(route_method, headers, method):
     if "auth_required" in route_method and route_method["auth_required"]:
         if "authorization" not in headers:
             raise UnauthorizedException("Missing authorization.")
@@ -95,10 +95,18 @@ def validate_authorization(route_method, headers):
             authenticated = False
             for user in data.get("users", []):
                 if user["name"] == username and user["password"] == password_hash:
+                    if method not in user["allowed_to"]:
+                        raise ForbiddenException("No permission for this operation.")
                     authenticated = True
                     break
             if not authenticated:
-                raise ForbiddenException("No authorization.")
+                raise UnauthorizedException("No authorization.")
+        except ForbiddenException as e:
+            logging.error(e)
+            raise e
+        except UnauthorizedException as e:
+            logging.error(e)
+            raise e
         except Exception as e:
             logging.error(e)
             raise UnauthorizedException("Invalid authorization.")

@@ -61,7 +61,7 @@ def post_users(request: Request) -> Response:
 
 def delete_users(request: Request) -> Response:
     try:
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
 
         if 'users' not in data:
@@ -73,8 +73,8 @@ def delete_users(request: Request) -> Response:
 
         data["users"] = filtered_users
 
-        with open(file_path, "w") as file:
-            json.dump(data, file, indent=4)
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
         body = "User(s) successfully deleted."
         headers = {}

@@ -1,18 +1,51 @@
 import re
 
+import re
+
+import re
+
 def markdown_to_html(markdown_text):
+    # Überschriften
     markdown_text = re.sub(r"^# (.+)", r"<h1>\1</h1>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"^## (.+)", r"<h2>\1</h2>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"^### (.+)", r"<h3>\1</h3>", markdown_text, flags=re.MULTILINE)
 
+    # Fettschrift und Kursivschrift
     markdown_text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", markdown_text)
     markdown_text = re.sub(r"__(.+?)__", r"<strong>\1</strong>", markdown_text)
     markdown_text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", markdown_text)
     markdown_text = re.sub(r"_(.+?)_", r"<em>\1</em>", markdown_text)
 
-    markdown_text = re.sub(r"^\s*[-*] (.+)", r"<li>\1</li>", markdown_text, flags=re.MULTILINE)
-    markdown_text = re.sub(r"(<li>.+</li>)", r"<ul>\1</ul>", markdown_text, flags=re.DOTALL)
+    # Links
+    markdown_text = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', markdown_text)
 
+    # Listen (zwei Ebenen)
+    def replace_lists(match):
+        lines = match.group(0).split("\n")
+        html = []
+        in_sublist = False
+
+        for line in lines:
+            if line.startswith("- - "):  # Zweite Ebene
+                if not in_sublist:
+                    html.append("<ul>")  # Starte neue Unterliste
+                    in_sublist = True
+                html.append(f"<li>{line[4:].strip()}</li>")
+            elif line.startswith("- "):  # Erste Ebene
+                if in_sublist:
+                    html.append("</ul>")  # Schließe vorherige Unterliste
+                    in_sublist = False
+                html.append(f"<li>{line[2:].strip()}</li>")
+        
+        if in_sublist:
+            html.append("</ul>")  # Schließe offene Unterliste am Ende
+
+        return "<ul>" + "".join(html) + "</ul>"
+
+    # Suche nach Listenblöcken und ersetze sie
+    markdown_text = re.sub(r"(?:(?:^[-].+)(?:\n[-].*)*)", replace_lists, markdown_text, flags=re.MULTILINE)
+
+    # Absätze
     markdown_text = re.sub(r"\n\n+", r"</p><p>", markdown_text)
     markdown_text = f"<p>{markdown_text}</p>"
 

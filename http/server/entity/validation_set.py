@@ -1,7 +1,7 @@
 from handler.divs.div_handler import get_divs, post_divs
 from handler.products.product_handler import get_products, post_products, delete_products, put_products
 from handler.users.user_handler import get_users, post_users, delete_users, put_users
-from handler.root_info.root_info_handler import get_root, get_info
+from handler.root_info.root_info_handler import get_root, get_info, get_config
 
 set = {
     "/": {
@@ -23,6 +23,16 @@ set = {
             "query_allowed": False,
             "accept": ["*/*", "text/html"],
             "handler": get_info,
+            "auth_required": False
+        }
+    },"/info/config": {
+        "GET": {
+            "required_headers": {"host": ["set in server.py"]},
+            "body_required": False,
+            "query_required": False,
+            "query_allowed": False,
+            "accept": ["*/*", "application/json"],
+            "handler": get_config,
             "auth_required": False
         }
     },
