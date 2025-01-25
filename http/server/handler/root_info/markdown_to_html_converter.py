@@ -10,12 +10,6 @@ def markdown_to_html(markdown_text):
     markdown_text = re.sub(r"^## (.+)", r"<h2>\1</h2>", markdown_text, flags=re.MULTILINE)
     markdown_text = re.sub(r"^### (.+)", r"<h3>\1</h3>", markdown_text, flags=re.MULTILINE)
 
-    # Fettschrift und Kursivschrift
-    markdown_text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", markdown_text)
-    markdown_text = re.sub(r"__(.+?)__", r"<strong>\1</strong>", markdown_text)
-    markdown_text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", markdown_text)
-    markdown_text = re.sub(r"_(.+?)_", r"<em>\1</em>", markdown_text)
-
     # Links
     markdown_text = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', markdown_text)
 

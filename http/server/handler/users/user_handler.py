@@ -42,9 +42,12 @@ def post_users(request: Request) -> Response:
         if 'users' not in data:
             logging.error("Kein useres in datei")
             raise Exception # 500er
-
-        for user in new_users:
-            data["users"].append(user)
+        
+        if isinstance(new_users, list):
+            for user in new_users:
+                data["users"].append(user)
+        else:
+            data["users"].append(new_users)
 
         with open(file_path, 'w', encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=4)

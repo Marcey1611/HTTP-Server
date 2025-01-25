@@ -1,27 +1,140 @@
+SCHEME--------------------------------------------------------------------------------------------
+
+!!! <bug description (just in bug area)>
+<request>
+<expected status code> -> <expected result>
+
+SUCCESSFULLY-TESTED------------------------------------------------------------------------------------------
 python3 client.py GET / --host 127.0.0.1 --port 8080
-python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: */*"
-python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: text/html"
-python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: text/plain, */*"
+200
+
+python3 client.py GET / --host 127.0.0.1 --port 9999
+Connection refused
+
+python3 client.py GET / --host invalidhost --port 8080
+sockert error
+
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: close"
+200 -> close
+
 python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-GET /
+200 -> keep alive
 
-python3 client.py GET /users --host 127.0.0.1 --port 8080
-python3 client.py GET /users --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-GET /users
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Accept: application/json"
+406
 
-python3 client.py GET /products --host 127.0.0.1 --port 8080
-python3 client.py GET /products --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-GET /products
+python3 client.py GET / --host 127.0.0.1 --port 8080 --body "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+413
 
-python3 client.py GET /divs --host 127.0.0.1 --port 8080
-python3 client.py GET /divs --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-GET /divs
+python3 client.py DELETE /info --host 127.0.0.1 --port 8080
+405
+
+python3 client.py GET / --host 127.0.0.1 --port 8080
+200
+
+python3 client.py PUT / --host 127.0.0.1 --port 8080
+405
+
+python3 client.py GET /nonexistent --host 127.0.0.1 --port 8080
+404
 
 python3 client.py GET /info --host 127.0.0.1 --port 8080
-python3 client.py GET /info --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-GET /info
+200
 
+python3 client.py GET /info/config --host 127.0.0.1 --port 8080
+200
 
+python3 client.py GET /info/routes --host 127.0.0.1 --port 8080
+501
 
+python3 client.py GET /info/headers --host 127.0.0.1 --port 8080
+501
 
-python client.py POST /products --host 127.0.0.1 --port 8080 --headers "Content-Length: 54" "Content-Type:application/xml" --body "<product><name>Test</name><price>100</price></product>"
+python3 client.py GET /users?name=Max --host 127.0.0.1 --port 8080
+200
+
+python3 client.py GET /products?price=100 --host 127.0.0.1 --port 8080
+200
+
+python3 client.py GET /divs --host 127.0.0.1 --port 8080
+200
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type:application/json" --body '{"name":}'
+422
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/json" --body '{"name": "Max", "age": 56}'
+200
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/json" --body '[{"name": "Max", "age": 56}]'
+200
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/json" "Content-Length: 54" --body '{"name": "Max", "age": 56}'
+200
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" --body '{"name": "Max", "age": 56}'
+400
+
+python3 client.py POST /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/html" --body '{"name": "Max", "age": 56}'
+415
+
+python3 client.py DELETE /users?name=Alice --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass"
+403
+
+python3 client.py DELETE /users?name=Alice --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test_all:pass"
+200
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml" --body '<product><name>Phone</name><price>500</price></product>'
+200
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml" --body '<product><name>first</name><price>500</price></product><product><name>second</name><price>500</price></product>'
+200
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/plain" --body '<product><name>Phone</name><price>500</price></product>'
+415
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml" --body 'product><name>Phone</name><price>500</price></product>'
+422
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" --body '<product><name>Phone</name><price>500</price></product>'
+400 -> missing required header
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:1234" "Content-Type: application/xml" --body '<product><name>Phone</name><price>500</price></product>'
+401
+
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Content-Type: application/xml" --body '<product><name>Phone</name><price>500</price></product>'
+401
+
+python3 client.py DELETE /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass"
+403
+
+python3 client.py DELETE /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test_all:pass"
+400
+
+python3 client.py POST /divs --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/html" --body "<div>New Division</div>"
+200
+
+python3 client.py POST /divs --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/plain" --body "<div>New Division</div>"
+415
+
+python3 client.py PATCH /divs --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/html" --body "<diNew Division</div>"
+200
+
+BUGS-TO-FIX------------------------------------------------------------------------------------------
+
+!!! -> client läuft weiter, server hält verbindung
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: invalid"
+400
+
+!!! -> doppelter host header wird geschickt
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Host: pfomepof.com"
+404
+
+!!!
+python3 client.py PUT /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type:application/json"
+400 -> 411 kommt length required aber body fehlt
+
+!!! -> content length fehlt obwohl body fehlt
+python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml"
+400
+
+NOT-TESTED-YET-----------------------------------------------------------------------------------------

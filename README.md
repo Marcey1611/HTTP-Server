@@ -4,7 +4,7 @@
 
 ## Gneral Information
 - The server runs on port 8080. It supports various status codes, methods and headers as described in this Readme. 
-- We used chatGPT and Tabnine partly as support, for example to comment the code in detail.
+- We used chatGPT, Tabnine and also StackOverflow partly as support, for example to comment the code in detail or for problems like the nonblocking input at the client.
 
 ## Supported Request Headers
 - Connection: <code>keep-alive | close</code>
@@ -93,6 +93,10 @@ If you need help just type python3 client.py --help in your command line.
 During the runtime you can simply use the commands from above just without the <code>python client.py</code> part, the --host and --port parameters and also without the Connection-Header because are now in a "Keep-Alive" session. 
 
 You can also type in --help to get help information.
+
+
+## Authentification
+For the methods POST, PUT and DELETE you need authentification. There are two users test (for POST and PUT) and test_all (for POST, PUT and DELETE) to test the authentification. Because of the server just saves the hashes here is the password for both users: "pass".
 
 ## The config- or validation-set of our http-server
 You can find our configurationvalidation set also under /http/server/entity/validation_set.

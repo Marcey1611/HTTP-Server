@@ -1,5 +1,3 @@
 ~ GET query /divs
 ~ DELETE (query) /divs
 ~ PUT (query) /divs
-
-- GET /config -> link in /info 

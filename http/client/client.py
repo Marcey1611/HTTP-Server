@@ -12,9 +12,9 @@ import hashlib
 # Logging einrichten
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
+# bei parser als default setzten?!?!?!
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = "8080"
-
 
 def send_request(client_socket, method, path, host, port, headers, body):
     """
@@ -33,7 +33,6 @@ def send_request(client_socket, method, path, host, port, headers, body):
         if body:
             request += body
 
-
         # Anfrage senden
         logging.info(f"Anfrage:\n{request}")
         client_socket.sendall(request.encode())
@@ -44,7 +43,6 @@ def send_request(client_socket, method, path, host, port, headers, body):
     except Exception as e:
         logging.error(f"Fehler bei der Anfrage: {e}")
         raise e
-
 
 def initial_parse_args():
     parser = argparse.ArgumentParser(description="HTTP-Client mit Keep-Alive-Unterstützung")
@@ -108,7 +106,6 @@ def convert_headers_to_dict(args):
                         
                         # Hashe das Passwort
                         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-                        logging.info(hashed_password)
                         
                         # Kombiniere Benutzername und gehashtes Passwort
                         new_credentials = f"{username}:{hashed_password}"
@@ -125,7 +122,6 @@ def convert_headers_to_dict(args):
         logging.error(f"Fehler beim Konvertieren der Header: {e}")
         raise e
 
-
 def create_connection(args):
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -135,7 +131,6 @@ def create_connection(args):
         return client_socket
     except socket.error as e:
         raise e
-
 
 def input_thread_function(stop_event, client_socket):
     """
@@ -167,21 +162,18 @@ def main():
         return
     except Exception as e:
         return
+    
     headers = convert_headers_to_dict(args)
     body = args.body
-    logging.info(f"Body: {body}")
-
     connection_keep_alive = False
-
     if "Connection" in headers and headers["Connection"] == "keep-alive":
         connection_keep_alive = True
-
     client_socket = None
+
     try:
         client_socket = create_connection(args)
         send_request(client_socket, args.method, args.path, args.host, args.port, headers, body)
         stop_event = threading.Event()
-
         if connection_keep_alive:
             input_thread = threading.Thread(target=input_thread_function, args=(stop_event, client_socket))
             input_thread.start()
