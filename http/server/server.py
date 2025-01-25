@@ -15,7 +15,7 @@ PORT = 8080
 DEFAULT_TIMEOUT = 100 
 DEFAULT_MAX_REQUESTS = 5
 
-def handle_connection_header(headers, keep_alive_data, response, connection_keep_alive):
+def handle_connection_header(headers, keep_alive_data, response: Response, connection_keep_alive):
     if "connection" not in headers and not connection_keep_alive:
         keep_alive_data.max_requests = 1
     elif "connection" in headers and "close" in headers["connection"]:
@@ -25,6 +25,11 @@ def handle_connection_header(headers, keep_alive_data, response, connection_keep
         response.headers["Connection"] = "keep-alive"
         response.headers["Keep-Alive"] = f"timeout={keep_alive_data.keep_alive_timeout}, max={keep_alive_data.max_requests}"
         connection_keep_alive = True
+    else:
+        response.body = "Invalid connection type."
+        response.status = HttpStatus.BAD_REQUEST.value
+        response.headers["Content-Type"] = "text/plain"
+        keep_alive_data.max_requests = 1
     return response, connection_keep_alive, keep_alive_data
 
 def handle_client(client_socket, client_address):

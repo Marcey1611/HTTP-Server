@@ -22,7 +22,7 @@ def send_request(client_socket, method, path, host, port, headers, body):
     """
     try:
         # Anfrage zusammenstellen
-        request = f"{method} {path} HTTP/1.1\r\nHost: {host}:{port}\r\n"
+        request = f"{method} {path} HTTP/1.1\r\n"
         for key, value in headers.items():
             request += f"{key}: {value}\r\n"
         if body and "Content-Length" not in headers:
@@ -117,6 +117,8 @@ def convert_headers_to_dict(args):
                         value = f"Basic {base64_credentials}"
 
                     headers[key] = value
+        if "Host" not in headers:
+            headers["Host"] = f"{args.host}:{args.port}"
         return headers
     except Exception as e:
         logging.error(f"Fehler beim Konvertieren der Header: {e}")

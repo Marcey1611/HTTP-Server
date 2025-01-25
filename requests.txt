@@ -119,22 +119,20 @@ python3 client.py POST /divs --host 127.0.0.1 --port 8080 --headers "Authorizati
 python3 client.py PATCH /divs --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: text/html" --body "<diNew Division</div>"
 200
 
-BUGS-TO-FIX------------------------------------------------------------------------------------------
-
-!!! -> client läuft weiter, server hält verbindung
 python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: invalid"
 400
 
-!!! -> doppelter host header wird geschickt
 python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Host: pfomepof.com"
 404
 
-!!!
 python3 client.py PUT /users --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type:application/json"
-400 -> 411 kommt length required aber body fehlt
+400 -> 411 kommt length required aber body fehlt -> getestet mit postman wenn content length null ist kommt missing required body
 
-!!! -> content length fehlt obwohl body fehlt
 python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml"
-400
+400 -> 411 kommt length required aber body fehlt -> getestet mit postman wenn content length null ist kommt missing required body
+
+BUGS-TO-FIX------------------------------------------------------------------------------------------
+
+
 
 NOT-TESTED-YET-----------------------------------------------------------------------------------------
