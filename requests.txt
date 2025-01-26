@@ -146,16 +146,4 @@ Erwartetes Ergebnis: 505 HTTP Version Not Supported, Server unterstützt nur HTT
 
 BUGS-TO-FIX------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
 NOT-TESTED-YET-----------------------------------------------------------------------------------------
-
-
-
-python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
-Aktion: Eine fehlerhafte zweite Anfrage senden: PATCH /nonexistent.
-Erwartetes Ergebnis: Erste Anfrage erfolgreich (200 OK), zweite Anfrage gibt 405 Method Not Allowed, Verbindung bleibt offen.

@@ -11,7 +11,6 @@ file_path = os.getcwd()+"/handler/products/data.xml"
 
 def get_products(request: Request) -> Response:
     try:
-        # Datei öffnen und Inhalt lesen
         with open(file_path, "r", encoding="utf-8") as file:
             data = file.read()
 

@@ -1,3 +1,0 @@
-~ GET query /divs
-~ DELETE (query) /divs
-~ PUT (query) /divs

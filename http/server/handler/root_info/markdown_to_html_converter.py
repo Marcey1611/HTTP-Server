@@ -1,9 +1,5 @@
 import re
 
-import re
-
-import re
-
 def markdown_to_html(markdown_text):
     # Überschriften
     markdown_text = re.sub(r"^# (.+)", r"<h1>\1</h1>", markdown_text, flags=re.MULTILINE)

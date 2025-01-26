@@ -25,7 +25,7 @@ def post_divs(request: Request) -> Response:
 
         body = root.find("body")
         if body is None:
-            raise Exception # Ist ein 500er
+            raise Exception
         try:
             new_data = ET.fromstring(request.body)
         except ET.ParseError:

@@ -32,16 +32,10 @@ def get_info(request: Request) -> Response:
     except Exception as e:
         raise e
     
-# Anpassung der `get_config`-Funktion
 def get_config(request: Request) -> Response:
     try:
-        # Transformation des verschachtelten Dictionaries
         transformed_set = transform_data(validation_set.set)
-        
-        # JSON serialisieren
         data = json.dumps(transformed_set, indent=4)
-        
-        # Headers setzen
         headers = {'Content-Type': ContentType.JSON.value}
         return Response(HttpStatus.OK.value, headers, data)
     except Exception as e:
@@ -50,14 +44,10 @@ def get_config(request: Request) -> Response:
     
 def transform_data(data: Any) -> Any:
     if isinstance(data, dict):
-        # Falls es ein Dictionary ist, wandle alle Werte rekursiv um
         return {key: transform_data(value) for key, value in data.items()}
     elif callable(data):
-        # Falls es eine Funktion ist, gib ihren Namen zurück
         return data.__name__
     elif isinstance(data, list):
-        # Falls es eine Liste ist, wandle jedes Element rekursiv um
         return [transform_data(item) for item in data]
     else:
-        # Andernfalls gib den Wert unverändert zurück
         return data

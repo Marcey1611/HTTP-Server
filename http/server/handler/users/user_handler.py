@@ -16,7 +16,7 @@ def get_users(request: Request) -> Response:
 
         if 'users' not in data:
             logging.error("Kein useres in datei")
-            raise Exception # 500er
+            raise Exception
 
         if request.query:
             names,ages = parse_query(request.query)
@@ -41,7 +41,7 @@ def post_users(request: Request) -> Response:
 
         if 'users' not in data:
             logging.error("Kein useres in datei")
-            raise Exception # 500er
+            raise Exception
         
         if isinstance(new_users, list):
             for user in new_users:
