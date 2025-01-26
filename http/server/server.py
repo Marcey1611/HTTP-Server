@@ -5,7 +5,7 @@ from threading import Thread
 from entity.models import KeepAliveData, Response, Request
 from entity.enums import HttpStatus, ContentType
 import validator
-from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException, LengthRequiredException, UnprocessableEntityException, UnauthorizedException, ForbiddenException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, HTTPVersionNotSupportedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, PayloadTooLargeException, LengthRequiredException, UnprocessableEntityException, UnauthorizedException, ForbiddenException
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(filename)s - %(funcName)s - %(message)s")
 
@@ -16,6 +16,9 @@ DEFAULT_TIMEOUT = 100
 DEFAULT_MAX_REQUESTS = 5
 
 def handle_connection_header(headers, keep_alive_data, response: Response, connection_keep_alive):
+    if headers is None:
+        keep_alive_data.max_requests = 1
+        return response, connection_keep_alive, keep_alive_data
     if "connection" not in headers and not connection_keep_alive:
         keep_alive_data.max_requests = 1
     elif "connection" in headers and "close" in headers["connection"]:
@@ -49,12 +52,15 @@ def handle_client(client_socket, client_address):
                     break
                 logging.info(f"Anfrage von {client_address}:\n{raw_request.strip()}\n")
                 try:
-
+                    headers = None
+                    
                     path, method, headers, body, query  = validator.unpack_request(raw_request)
                     if len(raw_request) > 3000:
                         raise PayloadTooLargeException("Request too large.")
                     request = validator.validate_request(path, method, headers, body, query, HOST, HOST_IP, PORT)
                     response = request.handler(request)
+                    response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
+
 
                 except (NotFoundException, 
                         MethodNotAllowedException, 
@@ -66,15 +72,20 @@ def handle_client(client_socket, client_address):
                         LengthRequiredException, 
                         UnprocessableEntityException, 
                         UnauthorizedException, 
-                        ForbiddenException) as exception:
+                        ForbiddenException,
+                        HTTPVersionNotSupportedException) as exception:
                     response = exception.response
+                    response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
+
                 except Exception as exception:
                     logging.error(exception)
                     headers = {}
                     headers['Content-Type'] = ContentType.PLAIN.value
                     response = Response(HttpStatus.INTERNAL_SERVER_ERROR.value, headers, HttpStatus.INTERNAL_SERVER_ERROR.value)
+                    response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
 
-                response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
+
+                #response, connection_keep_alive, keep_alive_data = handle_connection_header(headers, keep_alive_data, response, connection_keep_alive)
 
                 http_response = response.build_http_response()
 

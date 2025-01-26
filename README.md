@@ -1,8 +1,9 @@
 ### internet-project-ws2425 Group: world-weit
 
-# Server
+# HTTP Server and Client
 
 ## Gneral Information
+- Our simple http server supports HTTP 1.1
 - The server runs on port 8080. It supports various status codes, methods and headers as described in this Readme. 
 - We used chatGPT, Tabnine and also StackOverflow partly as support, for example to comment the code in detail or for problems like the nonblocking input at the client.
 
@@ -17,6 +18,7 @@
 - Host: <code>host:port</code>
 - - Required for every request.
 - - If you run the server on the local machine it should be "127.0.0.1:8080" or "localhost:8080".
+- - If you work with our client.py you dont need to add the host header by yourself.
 - Accept: <code>application/json | text/html | application/xml | text/plain | ...</code>
 - - Which data the client accepts as response value/body. The server will check this header if it is working with the called ressource.
 - Authorization: <code>Basic user:password</code>
@@ -31,19 +33,22 @@
 - - Which type the response body is.
 - Content-Length: <code>length</code>
 - - Length of the response body.
-- Allow: <code>GET, POST, PUT, DELTE</code>
-- - In case of an 405er here will be the allowed methods.
+- Allow: <code>GET, POST, PUT, DELETE</code>
+- - In case of a 405er here will be the allowed methods.
 - Date: <code>Sun, 19 Jan 2025 18:18:05 GMT</code>
 - - The time when the response was sent.
 - WWW-Authenticate: <code>Basic realm="Unhackable Area"</code>
 - - In response with a 401 or 403 response to tell the client which authentification required/needed is.
 
-## Paths and their allowed Methods
+## Paths and their allowed Methods 
 - <code>/</code> Allowed Methods
 - - <code>GET</code> - query not allwowed, no body required
 - <code>/info</code> Allowed Methods:
 - - <code>GET</code> - query not allwowed, no body required
 - - Here you can see the Readme.md of our project as html.
+- <code>/info/config</code> Allowed Methods:
+- - <code>GET</code> - query not allwowed, no body required
+- - Here you can see our configuration/validation set.
 - <code>/users</code> Allowed Methods:
 - - <code>GET</code> - query allowed, no body required
 - - <code>POST</code> - query not allowed, body required
@@ -71,7 +76,7 @@
 - <code>415 Unsupported Media Type</code>
 - <code>422 Unprocessable Entity</code>
 - <code>500 Internal Server Error</code>
-- <code>501 Not Implemented</code> (for things we did not finish)
+- <code>501 Not Implemented</code> (There are some paths we didnt finish)
 
 ## How to start the Server
 - python3 server.py
@@ -88,6 +93,9 @@ We sill explain how to start the client by following exmaples:
 As you can see we starting the python script with <code>python3 client.py</code> and then we add the method and path which should be called: <code>GET /</code>, <code>POST /products</code> or <code>DELETE /users?name=Max</code>. After this we define the host and port of the host which should called <code>--host 127.0.0.1 --port 8080</code>. Then we can add some headers for example: <code>--headers "Connection: keep-alive"</code> (here we setting the headers Connection to keep-alive) or <code>--headers "Content-Length: 54" "Content-Type:application/xml"</code> (here we setting the length of the body as content-length and the content-type of the provided body). Finally we can add a body: <code>--body '`<product><name>Test</name><price>100</price></product>`'</code>
 
 If you need help just type python3 client.py --help in your command line.
+
+In case of a request with query please put the path with query into quotes "/path?query=query" to avoid parse problems.
+You can let values in queries empty for example to get the products where still is no price set.
 
 ## How to handle the client during runtime
 During the runtime you can simply use the commands from above just without the <code>python client.py</code> part, the --host and --port parameters and also without the Connection-Header because are now in a "Keep-Alive" session. 

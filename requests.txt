@@ -131,8 +131,31 @@ python3 client.py PUT /users --host 127.0.0.1 --port 8080 --headers "Authorizati
 python3 client.py POST /products --host 127.0.0.1 --port 8080 --headers "Authorization:Basic test:pass" "Content-Type: application/xml"
 400 -> 411 kommt length required aber body fehlt -> getestet mit postman wenn content length null ist kommt missing required body
 
+python3 client.py GET /info --host 127.0.0.1 --port 8080 --headers "X-Custom-Header: CustomValue"
+200 header ignorieren
+
+python3 client.py GET /info --host 127.0.0.1 --port 8080 --headers "Host: 127.0.0.1" "Host: localhost"
+400 doppelter header
+
+python3 client.py GET "/users?name=Alice&age=20" --host 127.0.0.1 --port 8080
+200
+
+python3 client.py GET / --host 127.0.0.1 --port 8080
+Änderung im Client: HTTP-Version auf HTTP/2.0 geändert.
+Erwartetes Ergebnis: 505 HTTP Version Not Supported, Server unterstützt nur HTTP/1.1.
+
 BUGS-TO-FIX------------------------------------------------------------------------------------------
 
 
 
+
+
+
+
 NOT-TESTED-YET-----------------------------------------------------------------------------------------
+
+
+
+python3 client.py GET / --host 127.0.0.1 --port 8080 --headers "Connection: keep-alive"
+Aktion: Eine fehlerhafte zweite Anfrage senden: PATCH /nonexistent.
+Erwartetes Ergebnis: Erste Anfrage erfolgreich (200 OK), zweite Anfrage gibt 405 Method Not Allowed, Verbindung bleibt offen.

@@ -14,6 +14,7 @@ class HttpStatus(Enum):
     UNPROCESSABLE_ENTITY = "422 Unprocessable Entity"
     INTERNAL_SERVER_ERROR = "500 Internal Server Error"
     NOT_IMPLEMENTED = "501 Not Implemented"
+    HTTP_VERSION_NOT_SUPPORTED = "505 HTTP Version Not Supported"
 
 class ContentType(Enum):
     PLAIN = "text/plain"

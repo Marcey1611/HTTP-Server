@@ -93,3 +93,11 @@ class ForbiddenException(Exception):
         self.response = Response(HttpStatus.FORBIDDEN.value, headers, self.message)
         super().__init__(self.message)
 
+class HTTPVersionNotSupportedException(Exception):
+    def __init__(self, message=HttpStatus.HTTP_VERSION_NOT_SUPPORTED.value):
+        self.message = message
+        headers = {}
+        headers["Content-Type"] = ContentType.PLAIN.value
+        self.response = Response(HttpStatus.HTTP_VERSION_NOT_SUPPORTED.value, headers, self.message)
+        super().__init__(self.message)
+

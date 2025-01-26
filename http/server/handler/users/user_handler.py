@@ -56,8 +56,8 @@ def post_users(request: Request) -> Response:
         headers = {}
         headers['Content-Type'] = ContentType.PLAIN.value
         return Response(HttpStatus.OK.value, headers, body)
-    except UnprocessableEntityException as exception:
-        raise exception
+    except UnprocessableEntityException as e:
+        raise e
     except Exception as e:
         logging.error(e)
         raise e
@@ -119,8 +119,8 @@ def put_users(request: Request) -> Response:
         headers = {}
         headers['Content-Type'] = ContentType.PLAIN.value
         return Response(HttpStatus.OK.value, headers, body)
-    except UnprocessableEntityException as exception:
-        raise exception        
+    except UnprocessableEntityException as e:
+        raise e        
     except Exception as e:
         logging.error(e)
         raise e

@@ -5,7 +5,7 @@ import json
 
 from entity.models import Request
 from entity import validation_set
-from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, LengthRequiredException, UnauthorizedException, ForbiddenException
+from entity.exceptions import NotFoundException, MethodNotAllowedException, BadRequestException, UnsupportedMediaTypeException, NotAcceptableException, NotImplementedException, LengthRequiredException, UnauthorizedException, ForbiddenException, HTTPVersionNotSupportedException
 
 auth_path = os.getcwd() + "/auth.json"
 
@@ -17,7 +17,9 @@ def unpack_request(raw_request):
     query = None
 
     try:
-        method, path, _ = raw_request.split(" ")[0], raw_request.split(" ")[1], raw_request.split(" ")[2]
+        method, path, version = raw_request.split(" ")[0], raw_request.split(" ")[1], raw_request.split(" ")[2]
+        if "HTTP/1.1" not in version:
+            raise HTTPVersionNotSupportedException("Invalid HTTP version. This server just supports HTTP/1.1")
         if "?" in path:
             query = path.split("?")[1]
             path = path.split("?")[0]
@@ -42,10 +44,15 @@ def parse_headers(header_part):
                 raise BadRequestException()
             key, value = line.split(":", 1)
             key = key.strip().lower()
+            if key in headers:
+                raise BadRequestException("Duplicate header(s).")
             values = [v.split(";")[0].strip() for v in value.split(",")]
             headers[key] = values
 
         return headers
+    except BadRequestException as e:
+        logging.error(e)
+        raise e
     except Exception as e:
         logging.error(e)
         raise e
