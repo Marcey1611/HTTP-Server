@@ -109,4 +109,4 @@ For the methods POST, PUT and DELETE you need authentification. There are two us
 ## The config- or validation-set of our http-server
 You can find our configurationvalidation set also under /http/server/entity/validation_set.
 
-Or you can watch it here: [Config](/info/config)
+Or you can watch it here: [Config](/info/config) (in the browser) or [Config](http/server/entity/validation_set.py) (in the readme).
