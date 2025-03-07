@@ -107,6 +107,6 @@ You can also type in --help to get help information.
 For the methods POST, PUT and DELETE you need authentification. There are two users test (for POST and PUT) and test_all (for POST, PUT and DELETE) to test the authentification. Because of the server just saves the hashes here is the password for both users: "pass".
 
 ## The config- or validation-set of our http-server
-You can find our configurationvalidation set also under /http/server/entity/validation_set.
+You can find our configurationvalidation set also under /http/server/entity/validation_set.py
 
 Or you can watch it here: [Config](/info/config) (in the browser) or [Config](http/server/entity/validation_set.py) (in the readme).
