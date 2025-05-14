@@ -1,4 +1,4 @@
-### internet-project-ws2425 Group: world-weit
+### internet-project-ws2425
 
 # HTTP Server and Client
 
