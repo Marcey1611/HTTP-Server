@@ -1,4 +1,4 @@
-### internet-project-ws2425
+### Teil des Hochschulkurses Internet an der RWU
 
 # HTTP Server and Client
 
