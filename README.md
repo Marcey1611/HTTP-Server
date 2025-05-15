@@ -1,4 +1,4 @@
-### Erarbeitet im Rahmen des Hochschulkurses Internet an der RWU
+### Erarbeitet im Rahmen des Hochschulkurses Internet an der RWU (WiSe 2024/25)
 
 # HTTP Server and Client
 
